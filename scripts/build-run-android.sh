@@ -1,12 +1,12 @@
 #!/bin/bash
 # build llama.cpp + ggml-hexagon for Qualcomm Snapdragon mobile SoC equipped Android phone on Linux
 #
-# this script will download Android NDK and Qualcomm QNN SDK automatically,
-# Hexagon SDK must be obtained with a Qualcomm Developer Account and cannot be downloaded automatically in this script.
-#
+# this script will setup local dev envs automatically
 set -e
 
 PWD=`pwd`
+PROJECT_HOME_PATH=`pwd`
+PROJECT_ROOT_PATH=${PROJECT_HOME_PATH}
 
 #running path on Android phone
 REMOTE_PATH=/data/local/tmp/
@@ -21,26 +21,28 @@ ANDROID_PLATFORM=android-34
 ANDROID_NDK_VERSION=r28
 ANDROID_NDK_NAME=android-ndk-${ANDROID_NDK_VERSION}
 ANDROID_NDK_FULLNAME=${ANDROID_NDK_NAME}-linux.zip
-ANDROID_NDK=${PWD}/${ANDROID_NDK_NAME}
+ANDROID_NDK=${PROJECT_ROOT_PATH}/prebuilts/${ANDROID_NDK_NAME}
 
 #QNN SDK can be found at:
 #https://www.qualcomm.com/developer/software/qualcomm-ai-engine-direct-sdk
 QNN_SDK_URL=https://www.qualcomm.com/developer/software/qualcomm-ai-engine-direct-sdk
-QNN_SDK_INSTALL_PATH=/opt/qcom/aistack/qairt
 QNN_SDK_VERSION=2.32.0.250228
 QNN_SDK_VERSION=2.33.0.250327
 QNN_SDK_VERSION=2.34.0.250424
-QNN_SDK_PATH=${QNN_SDK_INSTALL_PATH}/${QNN_SDK_VERSION}
+QNN_SDK_PATH=${PROJECT_ROOT_PATH}/prebuilts/QNN_SDK/2.34.0.250424/
 
 #Hexagon SDK can be found at:
 #https://developer.qualcomm.com/software/hexagon-dsp-sdk/tools
 HEXAGON_SDK_PATH=/opt/qcom/Hexagon_SDK/6.2.0.1
+HEXAGON_SDK_PATH=${PROJECT_ROOT_PATH}/prebuilts/Hexagon_SDK/6.2.0.1
+
 #available htp arch version:
 #v68 --- Snapdragon 888
 #v69 --- Snapdragon 8 Gen1
 #v73 --- Snapdragon 8 Gen2
 #v75 --- Snapdragon 8 Gen3
 #v79 --- Snapdragon 8 Elite(aka Gen4)
+
 #8Gen3
 HTP_ARCH_VERSION=v75
 HTP_ARCH_VERSION_a=V75
@@ -67,6 +69,27 @@ function show_pwd()
 
 function check_hexagon_sdk()
 {
+    is_hexagon_llvm_exist=1
+    if [ ! -f ${PROJECT_ROOT_PATH}/prebuilts/Hexagon_SDK/6.2.0.1/tools/HEXAGON_Tools/8.8.06/NOTICE.txt ]; then
+        echo -e "${TEXT_RED}hexagon LLVM toolchain not exist, pls check...${TEXT_RESET}\n"
+        is_hexagon_llvm_exist=0
+    else
+        printf "hexagon LLVM toolchain already exist\n\n"
+    fi
+
+    #download customized LLVM toolchain HEXAGON_TOOLs_8.8.06.tar.gz
+    if [ ${is_hexagon_llvm_exist} -eq 0 ]; then
+        echo -e "begin downloading hexagon LLVM toolchain \n"
+        wget --no-config --quiet --show-progress -O ${PROJECT_ROOT_PATH}/prebuilts/Hexagon_SDK/6.2.0.1/tools/HEXAGON_Tools/HEXAGON_TOOLs_8.8.06.tar.gz https://github.com/kantv-ai/toolchain/raw/refs/heads/main/HEXAGON_TOOLs_8.8.06.tar.gz
+        if [ $? -ne 0 ]; then
+            printf "failed to download hexagon LLVM toolchain\n"
+            exit 1
+        else
+            zcat ${PROJECT_ROOT_PATH}/prebuilts/Hexagon_SDK/6.2.0.1/tools/HEXAGON_Tools/HEXAGON_TOOLs_8.8.06.tar.gz | tar -C ${PROJECT_ROOT_PATH}/prebuilts/Hexagon_SDK/6.2.0.1/tools/HEXAGON_Tools -xvf -
+            printf "install hexagon LLVM toolchain successfully\n\n"
+        fi
+    fi
+
     if [ ! -d ${HEXAGON_SDK_PATH} ]; then
         echo -e "HEXAGON_SDK_PATH ${HEXAGON_SDK_PATH} not exist, pls install it accordingly...\n"
         exit 0
@@ -85,25 +108,18 @@ function check_and_download_qnn_sdk()
         is_qnn_sdk_exist=0
     fi
 
-    if [ ! -f ${QNN_SDK_PATH}/sdk.yaml ]; then
-        is_qnn_sdk_exist=0
-    fi
-
     if [ ${is_qnn_sdk_exist} -eq 0 ]; then
-        echo "sudo mkdir -p ${QNN_SDK_INSTALL_PATH}"
-        sudo mkdir -p ${QNN_SDK_INSTALL_PATH}
-        if [ ! -f v${QNN_SDK_VERSION}.zip ]; then
-            wget --no-config --quiet --show-progress -O v${QNN_SDK_VERSION}.zip https://softwarecenter.qualcomm.com/api/download/software/sdks/Qualcomm_AI_Runtime_Community/All/${QNN_SDK_VERSION}/v${QNN_SDK_VERSION}.zip
+        if [ ! -f ${PROJECT_ROOT_PATH}/prebuild/v${QNN_SDK_VERSION}.zip ]; then
+            wget --no-config --quiet --show-progress -O ${PROJECT_ROOT_PATH}/prebuilts/v${QNN_SDK_VERSION}.zip https://softwarecenter.qualcomm.com/api/download/software/sdks/Qualcomm_AI_Runtime_Community/All/${QNN_SDK_VERSION}/v${QNN_SDK_VERSION}.zip
         fi
-        unzip v${QNN_SDK_VERSION}.zip
         if [ $? -ne 0 ]; then
             printf "failed to download Qualcomm QNN SDK to %s \n" "${QNN_SDK_PATH}"
             exit 1
         fi
-        sudo mv qairt/${QNN_SDK_VERSION} ${QNN_SDK_INSTALL_PATH}/
+        cd ${PROJECT_ROOT_PATH}/prebuilts/
+        unzip v${QNN_SDK_VERSION}.zip
         printf "Qualcomm QNN SDK saved to ${QNN_SDK_PATH} \n\n"
-        sudo rm -rf qairt
-        sudo mv v${QNN_SDK_VERSION}.zip /tmp/
+        cd ${PROJECT_ROOT_PATH}
     else
         printf "Qualcomm QNN SDK already exist:${QNN_SDK_PATH} \n\n"
     fi
@@ -124,16 +140,18 @@ function check_and_download_ndk()
 
     if [ ${is_android_ndk_exist} -eq 0 ]; then
 
-        if [ ! -f ${ANDROID_NDK_FULLNAME} ]; then
-            wget --no-config --quiet --show-progress -O ${ANDROID_NDK_FULLNAME} https://dl.google.com/android/repository/${ANDROID_NDK_FULLNAME}
+        if [ ! -f ${PROJECT_ROOT_PATH}/prebuilts/${ANDROID_NDK_FULLNAME} ]; then
+            wget --no-config --quiet --show-progress -O ${PROJECT_ROOT_PATH}/prebuilts/${ANDROID_NDK_FULLNAME} https://dl.google.com/android/repository/${ANDROID_NDK_FULLNAME}
         fi
 
+        cd ${PROJECT_ROOT_PATH}/prebuilts/
         unzip ${ANDROID_NDK_FULLNAME}
 
         if [ $? -ne 0 ]; then
             printf "failed to download android ndk to %s \n" "${ANDROID_NDK}"
             exit 1
         fi
+        cd ${PROJECT_ROOT_PATH}
 
         printf "android ndk saved to ${ANDROID_NDK} \n\n"
     else
