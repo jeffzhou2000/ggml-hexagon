@@ -2,6 +2,7 @@
 # build llama.cpp + ggml-hexagon for Qualcomm Snapdragon mobile SoC equipped Android phone on Linux
 #
 # this script will setup local dev envs automatically
+
 set -e
 
 PWD=`pwd`
