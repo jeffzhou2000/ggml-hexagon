@@ -44,12 +44,21 @@ HEXAGON_SDK_PATH=${PROJECT_ROOT_PATH}/prebuilts/Hexagon_SDK/6.2.0.1
 #v75 --- Snapdragon 8 Gen3
 #v79 --- Snapdragon 8 Elite(aka Gen4)
 
+#8Gen1
+HTP_ARCH_VERSION=v69
+HTP_ARCH_VERSION_a=V69
+
+#8Gen2
+HTP_ARCH_VERSION=v73
+HTP_ARCH_VERSION_a=V73
+
 #8Gen3
 HTP_ARCH_VERSION=v75
 HTP_ARCH_VERSION_a=V75
+
 #8Elite
-HTP_ARCH_VERSION=v79
-HTP_ARCH_VERSION_a=V79
+#HTP_ARCH_VERSION=v79
+#HTP_ARCH_VERSION_a=V79
 
 #running_params=" -mg 2 -ngl 99 -t 8 -fa 1 "
 running_params=" -mg 2 -ngl 99 -t 8 "
@@ -248,6 +257,29 @@ function build_ggml_hexagon_debug()
     build_arm64_debug
 }
 
+function prepare_ggmlhexagon()
+{
+    adb push ./scripts/ggml-hexagon.cfg ${REMOTE_PATH}/
+    echo "adb push ${PROJECT_ROOT_PATH}/prebuilts/ggml-dsp/libggmlop-skel${HTP_ARCH_VERSION}.so ${REMOTE_PATH}/"
+case "$HTP_ARCH_VERSION" in
+    v69)
+        adb push ${PROJECT_ROOT_PATH}/prebuilts/ggml-dsp/libggmlop-skel${HTP_ARCH_VERSION}.so ${REMOTE_PATH}/
+    ;;
+    v73)
+        adb push ${PROJECT_ROOT_PATH}/prebuilts/ggml-dsp/libggmlop-skel${HTP_ARCH_VERSION}.so ${REMOTE_PATH}/
+    ;;
+    v75)
+        adb push ${PROJECT_ROOT_PATH}/prebuilts/ggml-dsp/libggmlop-skel${HTP_ARCH_VERSION}.so ${REMOTE_PATH}/
+    ;;
+    v79)
+        adb push ${PROJECT_ROOT_PATH}/prebuilts/ggml-dsp/libggmlop-skel${HTP_ARCH_VERSION}.so ${REMOTE_PATH}/
+    ;;
+    *)
+        show_usage
+        exit 1
+    ;;
+esac
+}
 
 function prepare_run_on_phone()
 {
@@ -263,10 +295,9 @@ function prepare_run_on_phone()
         adb push ./out/android/bin/*.so ${REMOTE_PATH}/
     fi
     adb push ./out/android/bin/${program} ${REMOTE_PATH}/
-    #for non developers: deploy dev ops once time with build outputs in ./out/android/bin/
-    #adb push ./out/android/bin/ggml-hexagon.cfg ${REMOTE_PATH}/
-    #for developers: modify ./scritps/ggml-hexagon.cfg before run
-    adb push ./scripts/ggml-hexagon.cfg ${REMOTE_PATH}/
+
+    prepare_ggmlhexagon
+
     adb shell chmod +x ${REMOTE_PATH}/${program}
 }
 
