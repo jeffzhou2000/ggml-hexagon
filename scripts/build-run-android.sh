@@ -57,8 +57,8 @@ HTP_ARCH_VERSION=v75
 HTP_ARCH_VERSION_a=V75
 
 #8Elite
-#HTP_ARCH_VERSION=v79
-#HTP_ARCH_VERSION_a=V79
+HTP_ARCH_VERSION=v79
+HTP_ARCH_VERSION_a=V79
 
 #running_params=" -mg 2 -ngl 99 -t 8 -fa 1 "
 running_params=" -mg 2 -ngl 99 -t 8 "
@@ -257,22 +257,23 @@ function build_ggml_hexagon_debug()
     build_arm64_debug
 }
 
+#added on 05/31/2025, for purpose of non-tech factor
 function prepare_ggmlhexagon()
 {
     adb push ./scripts/ggml-hexagon.cfg ${REMOTE_PATH}/
-    echo "adb push ${PROJECT_ROOT_PATH}/prebuilts/ggml-dsp/libggmlop-skel${HTP_ARCH_VERSION}.so ${REMOTE_PATH}/"
+    echo "adb push ${PROJECT_ROOT_PATH}/prebuilts/ggml-dsp/libggmlop-skel${HTP_ARCH_VERSION}.so ${REMOTE_PATH}/libggmlop-skel.so"
 case "$HTP_ARCH_VERSION" in
     v69)
-        adb push ${PROJECT_ROOT_PATH}/prebuilts/ggml-dsp/libggmlop-skel${HTP_ARCH_VERSION}.so ${REMOTE_PATH}/
+        adb push ${PROJECT_ROOT_PATH}/prebuilts/ggml-dsp/libggmlop-skel${HTP_ARCH_VERSION}.so ${REMOTE_PATH}/libggmlop-skel.so
     ;;
     v73)
-        adb push ${PROJECT_ROOT_PATH}/prebuilts/ggml-dsp/libggmlop-skel${HTP_ARCH_VERSION}.so ${REMOTE_PATH}/
+        adb push ${PROJECT_ROOT_PATH}/prebuilts/ggml-dsp/libggmlop-skel${HTP_ARCH_VERSION}.so ${REMOTE_PATH}/libggmlop-skel.so
     ;;
     v75)
-        adb push ${PROJECT_ROOT_PATH}/prebuilts/ggml-dsp/libggmlop-skel${HTP_ARCH_VERSION}.so ${REMOTE_PATH}/
+        adb push ${PROJECT_ROOT_PATH}/prebuilts/ggml-dsp/libggmlop-skel${HTP_ARCH_VERSION}.so ${REMOTE_PATH}/libggmlop-skel.so
     ;;
     v79)
-        adb push ${PROJECT_ROOT_PATH}/prebuilts/ggml-dsp/libggmlop-skel${HTP_ARCH_VERSION}.so ${REMOTE_PATH}/
+        adb push ${PROJECT_ROOT_PATH}/prebuilts/ggml-dsp/libggmlop-skel${HTP_ARCH_VERSION}.so ${REMOTE_PATH}/libggmlop-skel.so
     ;;
     *)
         show_usage
