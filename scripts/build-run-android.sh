@@ -260,7 +260,7 @@ function build_ggml_hexagon_debug()
 #added on 05/31/2025, for purpose of non-tech factor
 function prepare_ggmlhexagon()
 {
-    adb push ./scripts/ggml-hexagon.cfg ${REMOTE_PATH}/
+    adb push ./scripts/ggml-hexagon-for-binary-lib.cfg ${REMOTE_PATH}/ggml-hexagon.cfg
     echo "adb push ${PROJECT_ROOT_PATH}/prebuilts/ggml-dsp/libggmlop-skel${HTP_ARCH_VERSION}.so ${REMOTE_PATH}/libggmlop-skel.so"
 case "$HTP_ARCH_VERSION" in
     v69)
@@ -297,7 +297,11 @@ function prepare_run_on_phone()
     fi
     adb push ./out/android/bin/${program} ${REMOTE_PATH}/
 
+    #for verify binary library on Hexagon cDSP
     prepare_ggmlhexagon
+
+    #for build library on Hexagon cDSP from the reference source codes in this project
+    #adb push ./scripts/ggml-hexagon.cfg ${REMOTE_PATH}/ggml-hexagon.cfg
 
     adb shell chmod +x ${REMOTE_PATH}/${program}
 }
