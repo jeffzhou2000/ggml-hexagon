@@ -1,8 +1,14 @@
 #!/bin/bash
-# build llama.cpp + ggml-hexagon for Qualcomm Snapdragon mobile SoC equipped Android phone on Linux
 #
-# this script will setup local dev envs automatically
-
+# Copyright (c) 2024-2025 The KanTV authors
+#
+# 1. build llama.cpp + ggml-hexagon backend on Linux for Android phone equipped with Qualcomm Snapdragon mobile SoC
+#    this script will setup local dev envs automatically
+#
+# 2. verify prebuilt libggmldsp-skel.so on Android phone equipped with Qualcomm Snapdragon mobile SoC
+#
+# 3. compare performance of QNN-CPU,QNN-GPU,QNN-NPU,Hexagon-cDSP,ggml on Android phone equipped with Qualcomm Snapdragon mobile SoC
+#
 set -e
 
 PWD=`pwd`
@@ -45,20 +51,29 @@ HEXAGON_SDK_PATH=${PROJECT_ROOT_PATH}/prebuilts/Hexagon_SDK/6.2.0.1
 #v79 --- Snapdragon 8 Elite(aka Gen4)
 
 #8Gen1
-HTP_ARCH_VERSION=v69
-HTP_ARCH_VERSION_a=V69
+#HTP_ARCH_VERSION=v69
+#HTP_ARCH_VERSION_a=V69
 
 #8Gen2
-HTP_ARCH_VERSION=v73
-HTP_ARCH_VERSION_a=V73
+#HTP_ARCH_VERSION=v73
+#HTP_ARCH_VERSION_a=V73
 
 #8Gen3
-HTP_ARCH_VERSION=v75
-HTP_ARCH_VERSION_a=V75
+#HTP_ARCH_VERSION=v75
+#HTP_ARCH_VERSION_a=V75
 
 #8Elite
+#HTP_ARCH_VERSION=v79
+#HTP_ARCH_VERSION_a=V79
+
+#default HTP_ARCH
+#modify the following two lines to adapt to test phone
 HTP_ARCH_VERSION=v79
 HTP_ARCH_VERSION_a=V79
+
+#available prebuilt libs can be found at prebuilts/ggml-dsp
+#modify the following line to select the appropriate libggmldsp-skel.so
+GGMLDSP_RELEASE_DATE=20250531
 
 #running_params=" -mg 2 -ngl 99 -t 8 -fa 1 "
 running_params=" -mg 2 -ngl 99 -t 8 "
@@ -261,19 +276,19 @@ function build_ggml_hexagon_debug()
 function prepare_ggmlhexagon()
 {
     adb push ./scripts/ggml-hexagon-for-binary-lib.cfg ${REMOTE_PATH}/ggml-hexagon.cfg
-    echo "adb push ${PROJECT_ROOT_PATH}/prebuilts/ggml-dsp/libggmlop-skel${HTP_ARCH_VERSION}.so ${REMOTE_PATH}/libggmlop-skel.so"
+    echo "adb push ${PROJECT_ROOT_PATH}/prebuilts/ggml-dsp/${GGMLDSP_RELEASE_DATE}/libggmlop-skel${HTP_ARCH_VERSION}.so ${REMOTE_PATH}/libggmlop-skel.so"
 case "$HTP_ARCH_VERSION" in
     v69)
-        adb push ${PROJECT_ROOT_PATH}/prebuilts/ggml-dsp/libggmlop-skel${HTP_ARCH_VERSION}.so ${REMOTE_PATH}/libggmlop-skel.so
+        adb push ${PROJECT_ROOT_PATH}/prebuilts/ggml-dsp/${GGMLDSP_RELEASE_DATE}/libggmlop-skel${HTP_ARCH_VERSION}.so ${REMOTE_PATH}/libggmlop-skel.so
     ;;
     v73)
-        adb push ${PROJECT_ROOT_PATH}/prebuilts/ggml-dsp/libggmlop-skel${HTP_ARCH_VERSION}.so ${REMOTE_PATH}/libggmlop-skel.so
+        adb push ${PROJECT_ROOT_PATH}/prebuilts/ggml-dsp/${GGMLDSP_RELEASE_DATE}/libggmlop-skel${HTP_ARCH_VERSION}.so ${REMOTE_PATH}/libggmlop-skel.so
     ;;
     v75)
-        adb push ${PROJECT_ROOT_PATH}/prebuilts/ggml-dsp/libggmlop-skel${HTP_ARCH_VERSION}.so ${REMOTE_PATH}/libggmlop-skel.so
+        adb push ${PROJECT_ROOT_PATH}/prebuilts/ggml-dsp/${GGMLDSP_RELEASE_DATE}/libggmlop-skel${HTP_ARCH_VERSION}.so ${REMOTE_PATH}/libggmlop-skel.so
     ;;
     v79)
-        adb push ${PROJECT_ROOT_PATH}/prebuilts/ggml-dsp/libggmlop-skel${HTP_ARCH_VERSION}.so ${REMOTE_PATH}/libggmlop-skel.so
+        adb push ${PROJECT_ROOT_PATH}/prebuilts/ggml-dsp/${GGMLDSP_RELEASE_DATE}/libggmlop-skel${HTP_ARCH_VERSION}.so ${REMOTE_PATH}/libggmlop-skel.so
     ;;
     *)
         show_usage
@@ -281,6 +296,32 @@ case "$HTP_ARCH_VERSION" in
     ;;
 esac
 }
+
+
+function prepare_ggmldsp()
+{
+    adb push ./scripts/ggml-hexagon-for-binary-lib.cfg ${REMOTE_PATH}/ggml-hexagon.cfg
+    echo "adb push ${PROJECT_ROOT_PATH}/prebuilts/ggml-dsp/${GGMLDSP_RELEASE_DATE}/libggmldsp-skel${HTP_ARCH_VERSION}.so ${REMOTE_PATH}/libggmldsp-skel.so"
+case "$HTP_ARCH_VERSION" in
+    v69)
+        adb push ${PROJECT_ROOT_PATH}/prebuilts/ggml-dsp/${GGMLDSP_RELEASE_DATE}/libggmldsp-skel${HTP_ARCH_VERSION}.so ${REMOTE_PATH}/libggmldsp-skel.so
+    ;;
+    v73)
+        adb push ${PROJECT_ROOT_PATH}/prebuilts/ggml-dsp/${GGMLDSP_RELEASE_DATE}/libggmldsp-skel${HTP_ARCH_VERSION}.so ${REMOTE_PATH}/libggmldsp-skel.so
+    ;;
+    v75)
+        adb push ${PROJECT_ROOT_PATH}/prebuilts/ggml-dsp/${GGMLDSP_RELEASE_DATE}/libggmldsp-skel${HTP_ARCH_VERSION}.so ${REMOTE_PATH}/libggmldsp-skel.so
+    ;;
+    v79)
+        adb push ${PROJECT_ROOT_PATH}/prebuilts/ggml-dsp/${GGMLDSP_RELEASE_DATE}/libggmldsp-skel${HTP_ARCH_VERSION}.so ${REMOTE_PATH}/libggmldsp-skel.so
+    ;;
+    *)
+        show_usage
+        exit 1
+    ;;
+esac
+}
+
 
 function prepare_run_on_phone()
 {
@@ -297,8 +338,12 @@ function prepare_run_on_phone()
     fi
     adb push ./out/android/bin/${program} ${REMOTE_PATH}/
 
-    #for verify binary library on Hexagon cDSP
-    prepare_ggmlhexagon
+    #for verify prebuilt binary library(built on 05/31/2025) on Hexagon cDSP
+    #not used since 06/2025 and would be removed in the future
+    #prepare_ggmlhexagon
+
+    #for verify prebuilt binary library(after 06/2025) on Hexagon cDSP
+    prepare_ggmldsp
 
     #for build library on Hexagon cDSP from the reference source codes in this project
     #adb push ./scripts/ggml-hexagon.cfg ${REMOTE_PATH}/ggml-hexagon.cfg
@@ -350,6 +395,17 @@ function run_test-op()
     adb shell "cd ${REMOTE_PATH} \
                && export LD_LIBRARY_PATH=${REMOTE_PATH} \
                && ${REMOTE_PATH}/test-backend-ops test -o $opname "
+
+}
+
+
+function run_benchmark()
+{
+    prepare_run_on_phone ggmlhexagon-benchmark
+
+    adb shell "cd ${REMOTE_PATH} \
+               && export LD_LIBRARY_PATH=${REMOTE_PATH} \
+               && ${REMOTE_PATH}/ggmlhexagon-benchmark -t $opname -b $qnnbackend"
 
 }
 
@@ -446,6 +502,7 @@ function show_usage()
     echo "  $0 run_testop          [ADD/MUL_MAT]"
     echo "  $0 run_llamacli"
     echo "  $0 run_llamabench"
+    echo "  $0 run_benchmark   ADD/MUL_MAT  0(QNN_CPU)/1(QNN_GPU)/2(QNN_NPU)/3(cdsp)/4(ggml)"
 
     echo -e "\n\n\n"
 }
@@ -498,6 +555,11 @@ elif [ $# == 2 ]; then
 #opname can be found via print_oplist:
 
     run_test-op
+    exit 0
+elif [ $# == 3 ]; then
+    opname=$2
+    qnnbackend=$3
+    run_benchmark
     exit 0
 else
     show_usage

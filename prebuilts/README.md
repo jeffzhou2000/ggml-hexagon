@@ -25,13 +25,4 @@ we should strictly follow Qualcomm's IPR policy, even in open-source community.
 
 - Hexagon_SDK: a customized/tailored Qualcomm's Hexagon SDK for build project ggml-hexagon conveniently. the fully Hexagon SDK could be found at Qualcomm's offcial website: https://developer.qualcomm.com/software/hexagon-dsp-sdk/tools. one more important thing, the fully Hexagon SDK must be obtained with a Qualcomm Developer Account.
 
-- ggml-dsp: binary libggmlop-skel.so for Qualcomm Snapdragon high-end mobile SoC
-
-```
-#available HTP(NPU) arch version:
-#v68 --- Snapdragon 888
-#v69 --- Snapdragon 8 Gen1
-#v73 --- Snapdragon 8 Gen2
-#v75 --- Snapdragon 8 Gen3
-#v79 --- Snapdragon 8 Elite(aka Gen4)
-```
+- [ggml-dsp](https://github.com/zhouwg/ggml-hexagon/tree/self-build/prebuilts/ggml-dsp): prebuilt libggmldsp-skel.so for Qualcomm Hexagon NPU on Android phone equipped with Qualcomm Snapdragon <b>high-end</b> mobile SoC
