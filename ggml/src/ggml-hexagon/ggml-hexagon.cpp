@@ -177,6 +177,12 @@ struct ggml_backend_hexagon_context;
         }                                                                       \
     } while (0)                                                                 \
 
+#ifndef ggmlop_URI
+//not used since 06/2025,compatiable with libggmlop-skel.so which built on 05/31/2025
+//#define ggmlop_URI "file:///libggmlop-skel.so?ggmlop_skel_handle_invoke&_modver=1.0&_idlver=0.0.1"
+
+#define ggmlop_URI "file:///libggmldsp-skel.so?ggmldsp_skel_handle_invoke&_modver=1.0&_idlver=0.0.1"
+#endif /*ggmlop_URI*/
 // =================================================================================================
 //  section-1: data type, data structure, global vars
 // =================================================================================================
@@ -373,7 +379,7 @@ static struct hexagon_appcfg_t g_hexagon_appcfg = {
 #elif defined(_WIN32)
         .qnn_runtimelib_path    = "C:\\",
 #endif
-        .ggml_hexagon_version   = {"1.09"},
+        .ggml_hexagon_version   = {"1.10"},
         .ggml_dsp_version       = {"0.63"},
 };
 
@@ -5403,6 +5409,9 @@ static int ggmlhexagon_init_dsp(ggml_backend_hexagon_context * ctx) {
     char * ggmlop_domain_uri        = NULL;
     int    ggmlop_domain_uri_len    = 0;
 
+    //compatiable with libggmlop-skel.so which built on 05/31/2025
+    const char * original_ggmlop_URI= "file:///libggmlop-skel.so?ggmlop_skel_handle_invoke&_modver=1.0&_idlver=0.0.1";
+
     if (nullptr == ctx)
         return 1;
     GGMLHEXAGON_LOG_DEBUG("init Hexagon cDSP with backend %d(%s)", ctx->device, ggml_backend_hexagon_get_devname(ctx->device));
@@ -5506,7 +5515,13 @@ static int ggmlhexagon_init_dsp(ggml_backend_hexagon_context * ctx) {
 
     ggmlop_domain_uri_len   = strlen(ggmlop_URI) + MAX_DOMAIN_NAMELEN;
     ggmlop_domain_uri       = (char *)malloc(ggmlop_domain_uri_len);
-    snprintf(ggmlop_domain_uri, ggmlop_domain_uri_len, "%s%s", ggmlop_URI, uri);
+
+    if (NULL == strstr(ggmlop_URI, "ggmldsp")) {
+        //compatiable with libggmlop-skel.so which built on 05/31/2025
+        snprintf(ggmlop_domain_uri, ggmlop_domain_uri_len, "%s%s", original_ggmlop_URI, uri);
+    } else {
+        snprintf(ggmlop_domain_uri, ggmlop_domain_uri_len, "%s%s", ggmlop_URI, uri);
+    }
     GGMLHEXAGON_LOG_DEBUG("ggmlop domain uri:%s", ggmlop_domain_uri);
     hexagon_error = ggmlop_dsp_open(ggmlop_domain_uri, &ctx->ggmlop_handle);
     if (AEE_SUCCESS == hexagon_error) {
@@ -5531,6 +5546,9 @@ static int ggmlhexagon_init_dsp(ggml_backend_hexagon_context * ctx) {
     //make sure test-backend-ops get the correct backend name when hwaccel approach is 2(HWACCEL_CDSP)
     memcpy(g_hexagon_mgr[ctx->device].name, "Hexagon-cDSP", strlen("Hexagon-cDSP"));
 
+    if (NULL != ggmlop_domain_uri) {
+        free(ggmlop_domain_uri);
+    }
     return 0;
 
 bail:
