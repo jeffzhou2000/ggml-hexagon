@@ -5526,8 +5526,7 @@ static int ggmlhexagon_init_dsp(ggml_backend_hexagon_context * ctx) {
     hexagon_error = ggmlop_dsp_open(ggmlop_domain_uri, &ctx->ggmlop_handle);
     if (AEE_SUCCESS == hexagon_error) {
         GGMLHEXAGON_LOG_INFO("succeed to open domain %d(%s)", domain_id, ggmlhexagon_get_dsp_name(domain_id));
-        //FIXME: only support offload fp32 GGML_OP_MUL_MAT to cDSP
-        GGMLHEXAGON_LOG_INFO("only support offload fp32 GGML_OP_ADD and fp32 GGML_OP_MUL_MAT to cDSP currently");
+        GGMLHEXAGON_LOG_INFO("only support offload GGML_OP_ADD and GGML_OP_MUL_MAT to cDSP currently");
         ggmlhexagon_probe_dspinfo(ctx);
         //FIXME: re-use this function to pass thread_counts info to code on cDSP side before fully understand qidl mechanism
         ggmlop_dsp_setclocks(ctx->ggmlop_handle, HAP_DCVS_VCORNER_TURBO_PLUS, 40, 1, g_hexagon_appcfg.thread_counts);
@@ -5695,8 +5694,6 @@ static bool ggmlhexagon_can_handle_op_through_cdsp(ggml_backend_dev_t dev, const
         case GGML_OP_MUL_MAT:
         {
             ggmlhexagon_dump_op_info(op_tensor);
-            //FIXME:keep same filter logic with QNN solution to compare NPU performance between cDSP approach
-            //      and QNN-NPU approach, remove these filters in the future
             if (src0_rank != src1_rank)
                 return false;
             if (src0_rank != 2)
@@ -5704,7 +5701,7 @@ static bool ggmlhexagon_can_handle_op_through_cdsp(ggml_backend_dev_t dev, const
 
             if (1 == g_hexagon_appcfg.enable_q_mulmat) {
                 if (1 == g_hexagon_appcfg.enable_all_q_mulmat) {
-                    return (src0->type == GGML_TYPE_F32 || ggml_is_quantized(src0->type)) && (src1->type == GGML_TYPE_F32);
+                    return (src0->type == GGML_TYPE_F32  || src0->type == GGML_TYPE_F16 || ggml_is_quantized(src0->type)) && (src1->type == GGML_TYPE_F32);
                 }
 
                 return (src0->type == GGML_TYPE_F32
@@ -5789,8 +5786,6 @@ static bool ggmlhexagon_can_handle_op_through_qnn(ggml_backend_dev_t dev, const 
 
             if (src0_rank != 2) {
                 // FIXME: there are some limitations for mulmat in QNN SDK: rank >= 2.
-                //        keep same filter logic with QNN solution to compare NPU performance between
-                //        cDSP approach and QNN-NPU approach, remove these filters in the future
                 return false;
             }
 
