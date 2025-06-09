@@ -73,7 +73,8 @@ HTP_ARCH_VERSION_a=V79
 
 #available prebuilt libs can be found at prebuilts/ggml-dsp
 #modify the following line to select the appropriate libggmldsp-skel.so
-GGMLDSP_RELEASE_DATE=20250531
+#GGMLDSP_RELEASE_DATE=20250531
+GGMLDSP_RELEASE_DATE=20250609
 
 #running_params=" -mg 2 -ngl 99 -t 8 -fa 1 "
 running_params=" -mg 2 -ngl 99 -t 8 "

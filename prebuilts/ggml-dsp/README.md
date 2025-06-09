@@ -25,3 +25,4 @@ ggml-hexagon backend consists of two parts:
 
 - 20250531: ggml-hexagon.cpp v1.08 + ggml-dsp v0.96(libggmlop-skel.so, would be removed in the future)
 - 20250607: ggml-hexagon.cpp v1.10 + ggml-dsp v0.96(libggmldsp-skel.so)
+- 20250609: ggml-hexagon.cpp v1.10 + ggml-dsp v0.97(libggmldsp-skel.so)
