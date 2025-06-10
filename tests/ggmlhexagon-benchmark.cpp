@@ -279,6 +279,7 @@ int main(int argc, char * argv[]) {
 
     printf("init backend %d\n", n_backend_type);
 
+#ifdef GGML_USE_HEXAGON
     //avoid manually modify ggml-hexagon.cfg
     if (n_backend_type >= HEXAGON_BACKEND_CDSP) {
         set_hexagon_cfg(n_backend_type, HWACCEL_CDSP);
@@ -286,6 +287,7 @@ int main(int argc, char * argv[]) {
     if (n_backend_type < HEXAGON_BACKEND_CDSP) {
         set_hexagon_cfg(n_backend_type, HWACCEL_QNN);
     }
+#endif
 
     srand(time(NULL));
 
