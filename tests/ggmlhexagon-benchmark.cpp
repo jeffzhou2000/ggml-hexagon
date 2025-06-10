@@ -59,6 +59,7 @@
 static void tensor_dump(const ggml_tensor * tensor, const char * name);
 
 #define TENSOR_DUMP(tensor, bdump) tensor_dump(tensor, #tensor, bdump)
+#define TMPBUF_LEN                 256
 
 static bool ggml_graph_compute_helper(
         struct ggml_backend * backend,
@@ -220,6 +221,31 @@ static void show_usage() {
 }
 
 
+static void get_timestring(char * p_currenttime) {
+    if (nullptr == p_currenttime)
+        return;
+
+
+    auto time_to_string = [](const std::chrono::system_clock::time_point & tp)->std::string {
+        auto as_time_t = std::chrono::system_clock::to_time_t(tp);
+        struct tm tm;
+
+        localtime_r(&as_time_t, &tm);
+
+        std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(tp.time_since_epoch());
+        char buf[TMPBUF_LEN];
+        memset(buf, 0, TMPBUF_LEN);
+        snprintf(buf, sizeof(buf), "%04d-%02d-%02d,%02d:%02d:%02d",
+                 tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
+        GGML_UNUSED(ms);
+        return buf;
+    };
+
+    std::chrono::system_clock::time_point tp = std::chrono::system_clock::now();
+    snprintf(p_currenttime, TMPBUF_LEN, "%s", time_to_string(tp).c_str());
+}
+
+
 int main(int argc, char * argv[]) {
     int64_t n_begin_time        = 0LL;
     int64_t n_end_time          = 0LL;
@@ -300,9 +326,11 @@ int main(int argc, char * argv[]) {
             /* no_alloc   =*/ 0
     };
 
+#ifdef GGML_USE_HEXAGON
     if (n_backend_type != HEXAGON_BACKEND_GGML) {
         params.no_alloc = true;
     }
+#endif
 
     ctx = ggml_init(params);
     if (!ctx) {
@@ -363,6 +391,8 @@ int main(int argc, char * argv[]) {
         printf("init default cpu backend\n");
         backend = ggml_backend_init_by_type(GGML_BACKEND_DEVICE_TYPE_CPU, nullptr);
     }
+#else
+    backend = ggml_backend_init_by_type(GGML_BACKEND_DEVICE_TYPE_CPU, nullptr);
 #endif
     GGML_ASSERT(backend != nullptr);
 
@@ -410,7 +440,14 @@ int main(int argc, char * argv[]) {
     ggml_backend_buffer_free(buffer);
     ggml_backend_free(backend);
 
-    printf("duration of ut GGML_OP_%s using backend %s: %ld milliseconds\n", ggml_op_name((enum ggml_op)n_ggml_op_type), ggml_backend_hexagon_get_devname(n_backend_type), n_duration);
+    char currenttime_string[TMPBUF_LEN];
+    get_timestring(currenttime_string);
+
+#ifdef GGML_USE_HEXAGON
+    printf("[%s] duration of ut GGML_OP_%s with backend %s: %ld milliseconds\n", currenttime_string, ggml_op_name((enum ggml_op)n_ggml_op_type), ggml_backend_hexagon_get_devname(n_backend_type), n_duration);
+#else
+    printf("[%s] duration of ut GGML_OP_%s with the default ggml backend: %ld milliseconds\n", currenttime_string, ggml_op_name((enum ggml_op)n_ggml_op_type), n_duration);
+#endif
 
     return 0;
 }
