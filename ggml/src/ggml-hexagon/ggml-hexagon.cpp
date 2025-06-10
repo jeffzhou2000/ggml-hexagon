@@ -4461,7 +4461,7 @@ static void ggmlqnn_compute_mul_mat_4d(ggml_backend_hexagon_context * ctx, ggml_
 
              in the all, there is gap between ggml mulmat and QNN mulmat,we need to perform a transpose
              operation when offloading mulmat to QNN backend. this implementation will handle transpose
-             in func ggmlqnn_compute_create_general_tensor()
+             in func ggmlqnn_create_general_tensor()
 
  * @param ctx     the context of backend
  * @param op      the destination tensor where the result of the matrix multiplication will be stored.
