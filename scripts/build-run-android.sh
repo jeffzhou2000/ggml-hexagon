@@ -36,7 +36,9 @@ QNN_SDK_URL=https://www.qualcomm.com/developer/software/qualcomm-ai-engine-direc
 QNN_SDK_VERSION=2.32.0.250228
 QNN_SDK_VERSION=2.33.0.250327
 QNN_SDK_VERSION=2.34.0.250424
-QNN_SDK_PATH=${PROJECT_ROOT_PATH}/prebuilts/QNN_SDK/2.34.0.250424/
+QNN_SDK_VERSION=2.35.0.250530
+QNN_SDK_PATH=${PROJECT_ROOT_PATH}/prebuilts/QNN_SDK/qairt/2.34.0.250424/
+QNN_SDK_PATH=${PROJECT_ROOT_PATH}/prebuilts/QNN_SDK/qairt/2.35.0.250530/
 
 #Hexagon SDK can be found at:
 #https://developer.qualcomm.com/software/hexagon-dsp-sdk/tools
@@ -136,13 +138,13 @@ function check_and_download_qnn_sdk()
 
     if [ ${is_qnn_sdk_exist} -eq 0 ]; then
         if [ ! -f ${PROJECT_ROOT_PATH}/prebuild/v${QNN_SDK_VERSION}.zip ]; then
-            wget --no-config --quiet --show-progress -O ${PROJECT_ROOT_PATH}/prebuilts/v${QNN_SDK_VERSION}.zip https://softwarecenter.qualcomm.com/api/download/software/sdks/Qualcomm_AI_Runtime_Community/All/${QNN_SDK_VERSION}/v${QNN_SDK_VERSION}.zip
+            wget --no-config --quiet --show-progress -O ${PROJECT_ROOT_PATH}/prebuilts/QNN_SDK/v${QNN_SDK_VERSION}.zip https://softwarecenter.qualcomm.com/api/download/software/sdks/Qualcomm_AI_Runtime_Community/All/${QNN_SDK_VERSION}/v${QNN_SDK_VERSION}.zip
         fi
         if [ $? -ne 0 ]; then
             printf "failed to download Qualcomm QNN SDK to %s \n" "${QNN_SDK_PATH}"
             exit 1
         fi
-        cd ${PROJECT_ROOT_PATH}/prebuilts/
+        cd ${PROJECT_ROOT_PATH}/prebuilts/QNN_SDK/
         unzip v${QNN_SDK_VERSION}.zip
         printf "Qualcomm QNN SDK saved to ${QNN_SDK_PATH} \n\n"
         cd ${PROJECT_ROOT_PATH}
