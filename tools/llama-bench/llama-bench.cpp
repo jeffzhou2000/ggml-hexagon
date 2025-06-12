@@ -21,6 +21,9 @@
 #include "common.h"
 #include "ggml.h"
 #include "llama.h"
+#ifdef GGML_USE_HEXAGON
+#include "ggml-hexagon.h"
+#endif
 
 #ifdef _WIN32
 #    define WIN32_LEAN_AND_MEAN
@@ -1813,6 +1816,21 @@ static std::unique_ptr<printer> create_printer(output_formats format) {
 }
 
 int main(int argc, char ** argv) {
+#ifdef GGML_USE_HEXAGON
+    int backend = HEXAGON_BACKEND_CDSP;
+    for (int i = 1; i < argc; i++) {
+        if (0 == strcmp(argv[i], "-mg")) {
+            backend = atoi(argv[i+1]);
+        }
+    }
+    printf("backend %d\n", backend);
+    if (backend >= HEXAGON_BACKEND_CDSP) {
+        ggml_backend_set_hexagon_cfg(backend, HWACCEL_CDSP);
+    }
+    if (backend < HEXAGON_BACKEND_CDSP) {
+        ggml_backend_set_hexagon_cfg(backend, HWACCEL_QNN);
+    }
+#endif
     // try to set locale for unicode characters in markdown
     setlocale(LC_CTYPE, ".UTF-8");
 
