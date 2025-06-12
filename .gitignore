@@ -147,3 +147,6 @@ poetry.toml
 /run-vim.sh
 /run-chat.sh
 HEXAGON_Tools/
+
+prebuilts/QNN_SDK/qairt/
+prebuilts/QNN_SDK/v2.35.0.250530.zip

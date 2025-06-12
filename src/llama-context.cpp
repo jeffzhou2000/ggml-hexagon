@@ -11,6 +11,10 @@
 #include <limits>
 #include <stdexcept>
 
+#ifdef GGML_USE_HEXAGON
+#include "ggml-hexagon.h"
+#endif
+
 //
 // llama_context
 //
@@ -131,7 +135,15 @@ llama_context::llama_context(
     if (!hparams.vocab_only) {
         // GPU backends
         for (auto * dev : model.devices) {
+#ifdef GGML_USE_HEXAGONAdd commentMore actions
+            if (model.params.main_gpu == HEXAGON_BACKEND_GGML)
+                break;
+#endif
+#ifndef GGML_USE_HEXAGON
             ggml_backend_t backend = ggml_backend_dev_init(dev, nullptr);
+#else
+            ggml_backend_t backend = ggml_backend_dev_init(dev,reinterpret_cast<const char *>(model.params.main_gpu));
+#endif
             if (backend == nullptr) {
                 throw std::runtime_error(format("failed to initialize %s backend", ggml_backend_dev_name(dev)));
             }
@@ -140,9 +152,17 @@ llama_context::llama_context(
 
         // add ACCEL backends (such as BLAS)
         for (size_t i = 0; i < ggml_backend_dev_count(); ++i) {
+#ifdef GGML_USE_HEXAGONAdd commentMore actions
+            if (model.params.main_gpu == HEXAGON_BACKEND_GGML)
+                break;
+#endif
             ggml_backend_dev_t dev = ggml_backend_dev_get(i);
             if (ggml_backend_dev_type(dev) == GGML_BACKEND_DEVICE_TYPE_ACCEL) {
+#ifndef GGML_USE_HEXAGONAdd commentMore actions
                 ggml_backend_t backend = ggml_backend_dev_init(dev, nullptr);
+#else
+                ggml_backend_t backend = ggml_backend_dev_init(dev,reinterpret_cast<const char *>(model.params.main_gpu));
+#endif
                 if (backend == nullptr) {
                     throw std::runtime_error(format("failed to initialize %s backend", ggml_backend_dev_name(dev)));
                 }
