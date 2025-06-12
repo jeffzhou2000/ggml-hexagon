@@ -79,7 +79,9 @@ HTP_ARCH_VERSION_a=V79
 GGMLDSP_RELEASE_DATE=20250609
 
 #running_params=" -mg 2 -ngl 99 -t 8 -fa 1 "
-running_params=" -mg 2 -ngl 99 -t 8 "
+#running_params=" -mg 2 -ngl 99 -t 8 "
+
+running_params=" -ngl 99 -t 8 "
 
 function dump_vars()
 {
@@ -358,9 +360,10 @@ function run_llamacli()
 {
     prepare_run_on_phone llama-cli
 
+    echo "${REMOTE_PATH}/llama-cli ${running_params} -mg $qnnbackend -no-cnv -m ${GGUF_MODEL_NAME} -p \"introduce the movie Once Upon a Time in America briefly.\n\""
     adb shell "cd ${REMOTE_PATH} \
                && export LD_LIBRARY_PATH=${REMOTE_PATH} \
-               && ${REMOTE_PATH}/llama-cli ${running_params} -no-cnv -m ${GGUF_MODEL_NAME} -p \"introduce the movie Once Upon a Time in America briefly.\n\""
+               && ${REMOTE_PATH}/llama-cli ${running_params} -mg $qnnbackend -no-cnv -m ${GGUF_MODEL_NAME} -p \"introduce the movie Once Upon a Time in America briefly.\n\""
 
 }
 
@@ -369,9 +372,14 @@ function run_llamabench()
 {
     prepare_run_on_phone llama-bench
 
+    echo "adb shell \"cd ${REMOTE_PATH} \
+               && export LD_LIBRARY_PATH=${REMOTE_PATH} \
+               && ${REMOTE_PATH}/llama-bench ${running_params} -mg $qnnbackend -m ${GGUF_MODEL_NAME}\""
+    echo "${REMOTE_PATH}/llama-bench ${running_params} -mg $qnnbackend -m ${GGUF_MODEL_NAME}"
+
     adb shell "cd ${REMOTE_PATH} \
                && export LD_LIBRARY_PATH=${REMOTE_PATH} \
-               && ${REMOTE_PATH}/llama-bench ${running_params} -m ${GGUF_MODEL_NAME}"
+               && ${REMOTE_PATH}/llama-bench ${running_params} -mg $qnnbackend -m ${GGUF_MODEL_NAME}"
 
 }
 
@@ -408,7 +416,7 @@ function run_benchmark()
 
     adb shell "cd ${REMOTE_PATH} \
                && export LD_LIBRARY_PATH=${REMOTE_PATH} \
-               && ${REMOTE_PATH}/ggmlhexagon-benchmark -t $opname -b $qnnbackend"
+               && ${REMOTE_PATH}/ggmlhexagon-benchmark -t $opname -b $qnnbackend -m $row -n $col"
 
 }
 
@@ -502,10 +510,11 @@ function show_usage()
     echo "  $0 build_debug (enable debug log for developers on ARM-AP side and cDSP side)"
     echo "  $0 updateqnnlib"
     echo "  $0 run_testops"
-    echo "  $0 run_testop          [ADD/MUL_MAT]"
-    echo "  $0 run_llamacli"
-    echo "  $0 run_llamabench"
-    echo "  $0 run_benchmark   ADD/MUL_MAT  0(QNN_CPU)/1(QNN_GPU)/2(QNN_NPU)/3(cdsp)/4(ggml)"
+    echo "  $0 run_testop     ADD/MUL_MAT"
+    echo "  $0 run_llamacli                 0(QNN_CPU)/1(QNN_GPU)/2(QNN_NPU)/3(cdsp)/4(ggml)"
+    echo "  $0 run_llamabench               0(QNN_CPU)/1(QNN_GPU)/2(QNN_NPU)/3(cdsp)/4(ggml)"
+    echo "  $0 run_benchmark  ADD/MUL_MAT   0(QNN_CPU)/1(QNN_GPU)/2(QNN_NPU)/3(cdsp)/4(ggml)"
+    echo "  $0 run_benchmark  ADD/MUL_MAT   0(QNN_CPU)/1(QNN_GPU)/2(QNN_NPU)/3(cdsp)/4(ggml) 256/512/1024/2048/4096 256/512/1024/2048/4096"
 
     echo -e "\n\n\n"
 }
@@ -539,12 +548,6 @@ elif [ $# == 1 ]; then
     elif [ "$1" == "run_testops" ]; then
         run_test-ops
         exit 0
-    elif [ "$1" == "run_llamacli" ]; then
-        run_llamacli
-        exit 0
-    elif [ "$1" == "run_llamabench" ]; then
-        run_llamabench
-        exit 0
     elif [ "$1" == "updateqnnlib" ]; then
         update_qnn_libs
         exit 0
@@ -553,15 +556,37 @@ elif [ $# == 1 ]; then
         exit 1
     fi
 elif [ $# == 2 ]; then
-    opname=$2
 #TODO: check opname in oplist
 #opname can be found via print_oplist:
 
-    run_test-op
-    exit 0
+    if [ "$1" == "run_testop" ]; then
+        opname=$2
+        run_test-op
+        exit 0
+    elif [ "$1" == "run_llamacli" ]; then
+        qnnbackend=$2
+        run_llamacli
+        exit 0
+    elif [ "$1" == "run_llamabench" ]; then
+        qnnbackend=$2
+        run_llamabench
+        exit 0
+    else
+        show_usage
+        exit 1
+    fi
 elif [ $# == 3 ]; then
     opname=$2
     qnnbackend=$3
+    row=4096
+    col=4096
+    run_benchmark
+    exit 0
+elif [ $# == 5 ]; then
+    opname=$2
+    qnnbackend=$3
+    row=$4
+    col=$5
     run_benchmark
     exit 0
 else
