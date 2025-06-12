@@ -216,6 +216,8 @@ static void show_usage() {
         "Options:\n" \
         " -t ADD / MUL_MAT \n" \
         " -b 0(QNN_CPU) 1(QNN_GPU) 2(QNN_NPU) 3(Hexagon-cDSP) 4(ggml)\n" \
+        " -m row\n" \
+        " -n col\n" \
         " ?/h print usage information\n\n"
     );
 }
@@ -297,6 +299,16 @@ int main(int argc, char * argv[]) {
                 }
                 i++;
             }
+        } else if (0 == strcmp(argv[i], "-m")) {
+            if (i + 1 < argc) {
+                sizex = atoi(argv[i+1]);
+                i++;
+            }
+        } else if (0 == strcmp(argv[i], "-n")) {
+            if (i + 1 < argc) {
+                sizey = atoi(argv[i+1]);
+                i++;
+            }
         } else {
             show_usage();
             return 3;
@@ -308,15 +320,16 @@ int main(int argc, char * argv[]) {
 #ifdef GGML_USE_HEXAGON
     //avoid manually modify ggml-hexagon.cfg
     if (n_backend_type >= HEXAGON_BACKEND_CDSP) {
-        set_hexagon_cfg(n_backend_type, HWACCEL_CDSP);
+        ggml_backend_set_hexagon_cfg(n_backend_type, HWACCEL_CDSP);
     }
     if (n_backend_type < HEXAGON_BACKEND_CDSP) {
-        set_hexagon_cfg(n_backend_type, HWACCEL_QNN);
+        ggml_backend_set_hexagon_cfg(n_backend_type, HWACCEL_QNN);
     }
 #endif
 
     srand(time(NULL));
 
+    ctx_size += 4096 * 4096 * 64;
     ctx_size += 4096 * 4096 * 64;
     printf("Allocating Memory of size %ld bytes, %ld MB\n", ctx_size, (ctx_size / 1024 / 1024));
 
