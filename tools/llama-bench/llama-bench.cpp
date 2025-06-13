@@ -1705,6 +1705,24 @@ struct markdown_printer : public printer {
 
     void print_footer() override {
         fprintf(fout, "\nbuild: %s (%d)\n", test::build_commit.c_str(), test::build_number);
+
+        auto time_to_string = [](const std::chrono::system_clock::time_point & tp)->std::string {
+            auto as_time_t = std::chrono::system_clock::to_time_t(tp);
+            struct tm tm;
+
+            localtime_r(&as_time_t, &tm);
+
+            std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(tp.time_since_epoch());
+            char buf[256];
+            memset(buf, 0, 256);
+            snprintf(buf, sizeof(buf), "%04d-%02d-%02d,%02d:%02d:%02d",
+                     tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
+            GGML_UNUSED(ms);
+            return buf;
+        };
+
+        std::chrono::system_clock::time_point tp = std::chrono::system_clock::now();
+        fprintf(fout, "running time:%s\n", time_to_string(tp).c_str());
     }
 };
 
