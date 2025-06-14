@@ -17,10 +17,21 @@ PROJECT_ROOT_PATH=${PROJECT_HOME_PATH}
 
 #running path on Android phone
 REMOTE_PATH=/data/local/tmp/
-#LLM model file on Android phone
+
+
+#customized LLM models for compare inference peformance of QNN-CPU, QNN-GPU, QNN-NPU, cDSP, the default ggml backend
+#during development stage
+#https://huggingface.co/zhouwg/kantv/blob/main/MiniCPM4-0.5B-F32.gguf, size 1.74 GiB
+TEST_MODEL_NAME=/sdcard/MiniCPM4-0.5B-F32.gguf
+#https://huggingface.co/zhouwg/kantv/blob/main/t5-very-small-random-F32.gguf, size 20.4 MiB
+TEST_MODEL_NAME=/sdcard/t5-very-small-random-F32.gguf
+
+#normal LLM models file on Android phone
+#https://huggingface.co/ggml-org/gemma-3-4b-it-GGUF/blob/main/gemma-3-4b-it-Q8_0.gguf, size 4.13 GiB
 GGUF_MODEL_NAME=/sdcard/gemma-3-4b-it-Q8_0.gguf
-#https://huggingface.co/Qwen/Qwen1.5-1.8B-Chat-GGUF/blob/main/qwen1_5-1_8b-chat-q4_0.gguf
+#https://huggingface.co/Qwen/Qwen1.5-1.8B-Chat-GGUF/blob/main/qwen1_5-1_8b-chat-q4_0.gguf, size 1.12 GiB
 GGUF_MODEL_NAME=/sdcard/qwen1_5-1_8b-chat-q4_0.gguf
+
 
 #Android NDK can be found at:
 #https://developer.android.com/ndk/downloads
@@ -81,7 +92,7 @@ GGMLDSP_RELEASE_DATE=20250609
 #running_params=" -mg 2 -ngl 99 -t 8 -fa 1 "
 #running_params=" -mg 2 -ngl 99 -t 8 "
 
-running_params=" -ngl 99 -t 8 "
+running_params=" -ngl 99 -t 8 -n 256"
 
 function dump_vars()
 {
@@ -222,16 +233,21 @@ function remove_temp_dir()
 
 function check_qnn_libs()
 {
+    set +e
+
     #reuse the cached qnn libs on Android phone
     adb shell ls ${REMOTE_PATH}/libQnnCpu.so
     adb shell ls ${REMOTE_PATH}/libQnnGpu.so
     adb shell ls ${REMOTE_PATH}/libQnnHtp.so
     if [ $? -eq 0 ]; then
-        printf "QNN libs already exist on Android phone\n"
+        printf "QNN runtime libs already exist on Android phone\n"
     else
+        printf "QNN runtime libs not exist on Android phone\n"
         update_qnn_libs
     fi
     update_qnn_cfg
+
+    set -e
 }
 
 
@@ -328,6 +344,22 @@ esac
 }
 
 
+function check_prebuilt_models()
+{
+    set +e
+
+    adb shell ls /sdcard/t5-very-small-random-F32.gguf
+    if [ $? -eq 0 ]; then
+        printf "the prebuild LLM model t5-very-small-random-F32.gguf already exist on Android phone\n"
+    else
+        printf "the prebuild LLM model t5-very-small-random-F32.gguf not exist on Android phone\n"
+        adb push ${PROJECT_ROOT_PATH}/prebuilts/models/t5-very-small-random-F32.gguf /sdcard/
+    fi
+
+    set -e
+}
+
+
 function prepare_run_on_phone()
 {
     if [ $# != 1 ]; then
@@ -338,10 +370,15 @@ function prepare_run_on_phone()
 
     check_qnn_libs
 
+    check_prebuilt_models
+
     if [ -f ./out/android/bin/libggml-cpu.so ]; then
         adb push ./out/android/bin/*.so ${REMOTE_PATH}/
     fi
     adb push ./out/android/bin/${program} ${REMOTE_PATH}/
+
+    #for troubleshooting issues in upstream llama.cpp project
+    adb shell ls -l ${REMOTE_PATH}/libggml-*.so
 
     #for verify prebuilt binary library(built on 05/31/2025) on Hexagon cDSP
     #not used since 06/2025 and would be removed in the future
@@ -360,10 +397,10 @@ function run_llamacli()
 {
     prepare_run_on_phone llama-cli
 
-    echo "${REMOTE_PATH}/llama-cli ${running_params} -mg $qnnbackend -no-cnv -m ${GGUF_MODEL_NAME} -p \"introduce the movie Once Upon a Time in America briefly.\n\""
+    echo "${REMOTE_PATH}/llama-cli ${running_params} -mg $qnnbackend -no-cnv -m ${TEST_MODEL_NAME} -p \"introduce the movie Once Upon a Time in America briefly.\n\""
     adb shell "cd ${REMOTE_PATH} \
                && export LD_LIBRARY_PATH=${REMOTE_PATH} \
-               && ${REMOTE_PATH}/llama-cli ${running_params} -mg $qnnbackend -no-cnv -m ${GGUF_MODEL_NAME} -p \"introduce the movie Once Upon a Time in America briefly.\n\""
+               && ${REMOTE_PATH}/llama-cli ${running_params} -mg $qnnbackend -no-cnv -m ${TEST_MODEL_NAME} -p \"introduce the movie Once Upon a Time in America briefly.\n\""
 
 }
 
