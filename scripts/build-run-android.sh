@@ -9,7 +9,7 @@
 #
 # 3. compare performance of QNN-CPU,QNN-GPU,QNN-NPU,Hexagon-cDSP,ggml on Android phone equipped with Qualcomm Snapdragon mobile SoC
 #
-set +e
+set -e
 
 PWD=`pwd`
 PROJECT_HOME_PATH=`pwd`
@@ -233,6 +233,8 @@ function remove_temp_dir()
 
 function check_qnn_libs()
 {
+    set +e
+
     #reuse the cached qnn libs on Android phone
     adb shell ls ${REMOTE_PATH}/libQnnCpu.so
     adb shell ls ${REMOTE_PATH}/libQnnGpu.so
@@ -244,6 +246,8 @@ function check_qnn_libs()
         update_qnn_libs
     fi
     update_qnn_cfg
+
+    set -e
 }
 
 
@@ -342,6 +346,8 @@ esac
 
 function check_prebuilt_models()
 {
+    set +e
+
     adb shell ls /sdcard/t5-very-small-random-F32.gguf
     if [ $? -eq 0 ]; then
         printf "the prebuild LLM model t5-very-small-random-F32.gguf already exist on Android phone\n"
@@ -349,6 +355,8 @@ function check_prebuilt_models()
         printf "the prebuild LLM model t5-very-small-random-F32.gguf not exist on Android phone\n"
         adb push ${PROJECT_ROOT_PATH}/prebuilts/models/t5-very-small-random-F32.gguf /sdcard/
     fi
+
+    set -e
 }
 
 
@@ -368,6 +376,9 @@ function prepare_run_on_phone()
         adb push ./out/android/bin/*.so ${REMOTE_PATH}/
     fi
     adb push ./out/android/bin/${program} ${REMOTE_PATH}/
+
+    #for troubleshooting issues in upstream llama.cpp project
+    adb shell ls -l ${REMOTE_PATH}/libggml-*.so
 
     #for verify prebuilt binary library(built on 05/31/2025) on Hexagon cDSP
     #not used since 06/2025 and would be removed in the future
