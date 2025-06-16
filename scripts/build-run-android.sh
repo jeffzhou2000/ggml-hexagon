@@ -21,7 +21,7 @@ REMOTE_PATH=/data/local/tmp/
 #for llama-cli, 20.4 MiB in models/t5-very-small-random-F32.gguf
 TEST_MODEL_NAME=/sdcard/t5-very-small-random-F32.gguf
 
-#for llama-bench, https://huggingface.co/Qwen/Qwen1.5-1.8B-Chat-GGUF/blob/main/qwen1_5-1_8b-chat-q4_0.gguf, size 1.12 GiB
+#for llama-bench, 1.12 GiB, will be downloadded automatically from https://huggingface.co/Qwen/Qwen1.5-1.8B-Chat-GGUF/blob/main/qwen1_5-1_8b-chat-q4_0.gguf
 GGUF_MODEL_NAME=/sdcard/qwen1_5-1_8b-chat-q4_0.gguf
 
 #Android NDK can be found at:
