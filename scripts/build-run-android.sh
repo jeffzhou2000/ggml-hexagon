@@ -18,12 +18,13 @@ PROJECT_ROOT_PATH=${PROJECT_HOME_PATH}
 #running path on Android phone
 REMOTE_PATH=/data/local/tmp/
 
-
 #customized LLM models for compare inference peformance of QNN-CPU, QNN-GPU, QNN-NPU, cDSP, the default ggml backend
 #during development stage
 #https://huggingface.co/zhouwg/kantv/blob/main/MiniCPM4-0.5B-F32.gguf, size 1.74 GiB
+#original model:  https://huggingface.co/openbmb/MiniCPM4-0.5B
 TEST_MODEL_NAME=/sdcard/MiniCPM4-0.5B-F32.gguf
 #https://huggingface.co/zhouwg/kantv/blob/main/t5-very-small-random-F32.gguf, size 20.4 MiB
+#original model:  https://huggingface.co/stas/t5-very-small-random
 TEST_MODEL_NAME=/sdcard/t5-very-small-random-F32.gguf
 
 #normal LLM models file on Android phone
@@ -353,7 +354,7 @@ function check_prebuilt_models()
         printf "the prebuild LLM model t5-very-small-random-F32.gguf already exist on Android phone\n"
     else
         printf "the prebuild LLM model t5-very-small-random-F32.gguf not exist on Android phone\n"
-        adb push ${PROJECT_ROOT_PATH}/prebuilts/models/t5-very-small-random-F32.gguf /sdcard/
+        adb push ${PROJECT_ROOT_PATH}/models/t5-very-small-random-F32.gguf /sdcard/
     fi
 
     set -e
