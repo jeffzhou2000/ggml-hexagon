@@ -18,21 +18,11 @@ PROJECT_ROOT_PATH=${PROJECT_HOME_PATH}
 #running path on Android phone
 REMOTE_PATH=/data/local/tmp/
 
-#customized LLM models for compare inference peformance of QNN-CPU, QNN-GPU, QNN-NPU, cDSP, the default ggml backend
-#during development stage
-#https://huggingface.co/zhouwg/kantv/blob/main/MiniCPM4-0.5B-F32.gguf, size 1.74 GiB
-#original model:  https://huggingface.co/openbmb/MiniCPM4-0.5B
-TEST_MODEL_NAME=/sdcard/MiniCPM4-0.5B-F32.gguf
-#https://huggingface.co/zhouwg/kantv/blob/main/t5-very-small-random-F32.gguf, size 20.4 MiB
-#original model:  https://huggingface.co/stas/t5-very-small-random
+#for llama-cli, 20.4 MiB in models/t5-very-small-random-F32.gguf
 TEST_MODEL_NAME=/sdcard/t5-very-small-random-F32.gguf
 
-#normal LLM models file on Android phone
-#https://huggingface.co/ggml-org/gemma-3-4b-it-GGUF/blob/main/gemma-3-4b-it-Q8_0.gguf, size 4.13 GiB
-GGUF_MODEL_NAME=/sdcard/gemma-3-4b-it-Q8_0.gguf
-#https://huggingface.co/Qwen/Qwen1.5-1.8B-Chat-GGUF/blob/main/qwen1_5-1_8b-chat-q4_0.gguf, size 1.12 GiB
+#for llama-bench, https://huggingface.co/Qwen/Qwen1.5-1.8B-Chat-GGUF/blob/main/qwen1_5-1_8b-chat-q4_0.gguf, size 1.12 GiB
 GGUF_MODEL_NAME=/sdcard/qwen1_5-1_8b-chat-q4_0.gguf
-
 
 #Android NDK can be found at:
 #https://developer.android.com/ndk/downloads
@@ -345,8 +335,39 @@ esac
 }
 
 
+function check_and_download_model()
+{
+    set +e
+
+    model_name=$1
+    model_url=$2
+
+    adb shell ls /sdcard/${model_name}
+    if [ $? -eq 0 ]; then
+        printf "the prebuild LLM model ${model_name} already exist on Android phone\n"
+    else
+        wget --no-config --quiet --show-progress -O ${PROJECT_ROOT_PATH}/models/${model_name} ${model_url}
+        adb push ${PROJECT_ROOT_PATH}/models/${model_name} /sdcard/
+    fi
+
+    set -e
+}
+
+
 function check_prebuilt_models()
 {
+    #normal LLM models
+    #https://huggingface.co/ggml-org/gemma-3-4b-it-GGUF/blob/main/gemma-3-4b-it-Q8_0.gguf,              size 4.13 GiB
+    #https://huggingface.co/Qwen/Qwen1.5-1.8B-Chat-GGUF/blob/main/qwen1_5-1_8b-chat-q4_0.gguf,          size 1.12 GiB
+
+    #customized LLM models for compare inference peformance of QNN-CPU, QNN-GPU, QNN-NPU, cDSP, the default ggml backend
+    #during development stage
+    #https://huggingface.co/zhouwg/kantv/blob/main/t5-very-small-random-F32.gguf,                       size 20.4 MiB
+    #original model:  https://huggingface.co/stas/t5-very-small-random
+
+    #https://huggingface.co/zhouwg/kantv/blob/main/MiniCPM4-0.5B-F32.gguf,                              size 1.74 GiB
+    #original model:  https://huggingface.co/openbmb/MiniCPM4-0.5B
+
     set +e
 
     adb shell ls /sdcard/t5-very-small-random-F32.gguf
@@ -356,6 +377,9 @@ function check_prebuilt_models()
         printf "the prebuild LLM model t5-very-small-random-F32.gguf not exist on Android phone\n"
         adb push ${PROJECT_ROOT_PATH}/models/t5-very-small-random-F32.gguf /sdcard/
     fi
+
+    check_and_download_model qwen1_5-1_8b-chat-q4_0.gguf https://huggingface.co/Qwen/Qwen1.5-1.8B-Chat-GGUF/resolve/main/qwen1_5-1_8b-chat-q4_0.gguf
+    #check_and_download_model MiniCPM4-0.5B-F32.gguf https://huggingface.co/zhouwg/kantv/resolve/main/MiniCPM4-0.5B-F32.gguf
 
     set -e
 }
@@ -563,6 +587,7 @@ show_pwd
 check_and_download_ndk
 check_and_download_qnn_sdk
 check_hexagon_sdk
+check_prebuilt_models
 
 if [ $# == 0 ]; then
     show_usage
