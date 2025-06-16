@@ -32,7 +32,7 @@ ANDROID_NDK_NAME=android-ndk-${ANDROID_NDK_VERSION}
 ANDROID_NDK_FULLNAME=${ANDROID_NDK_NAME}-linux.zip
 ANDROID_NDK=${PROJECT_ROOT_PATH}/prebuilts/${ANDROID_NDK_NAME}
 
-#QNN SDK can be found at:
+#Qualcomm QNN SDK can be found at:
 #https://www.qualcomm.com/developer/software/qualcomm-ai-engine-direct-sdk
 QNN_SDK_URL=https://www.qualcomm.com/developer/software/qualcomm-ai-engine-direct-sdk
 QNN_SDK_VERSION=2.32.0.250228
@@ -42,9 +42,11 @@ QNN_SDK_VERSION=2.35.0.250530
 QNN_SDK_PATH=${PROJECT_ROOT_PATH}/prebuilts/QNN_SDK/qairt/2.34.0.250424/
 QNN_SDK_PATH=${PROJECT_ROOT_PATH}/prebuilts/QNN_SDK/qairt/2.35.0.250530/
 
-#Hexagon SDK can be found at:
+#Qualcomm Hexagon SDK can be found at:
 #https://developer.qualcomm.com/software/hexagon-dsp-sdk/tools
+#the official Hexagon SDK, must be obtained with Qualcomm Developer Account
 HEXAGON_SDK_PATH=/opt/qcom/Hexagon_SDK/6.2.0.1
+#customized/tailored Hexagon SDK from the offcial Hexagon SDK for simplify workflow
 HEXAGON_SDK_PATH=${PROJECT_ROOT_PATH}/prebuilts/Hexagon_SDK/6.2.0.1
 
 #available htp arch version:
