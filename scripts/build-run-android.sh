@@ -21,7 +21,8 @@ REMOTE_PATH=/data/local/tmp/
 #for llama-cli, 20.4 MiB in models/t5-very-small-random-F32.gguf
 TEST_MODEL_NAME=/sdcard/t5-very-small-random-F32.gguf
 
-#for llama-bench, 1.12 GiB, will be downloadded automatically from https://huggingface.co/Qwen/Qwen1.5-1.8B-Chat-GGUF/blob/main/qwen1_5-1_8b-chat-q4_0.gguf
+#for llama-bench, 1.12 GiB, will be downloadded automatically via this script from
+#https://huggingface.co/Qwen/Qwen1.5-1.8B-Chat-GGUF/blob/main/qwen1_5-1_8b-chat-q4_0.gguf
 GGUF_MODEL_NAME=/sdcard/qwen1_5-1_8b-chat-q4_0.gguf
 
 #Android NDK can be found at:
@@ -39,6 +40,7 @@ QNN_SDK_VERSION=2.32.0.250228
 QNN_SDK_VERSION=2.33.0.250327
 QNN_SDK_VERSION=2.34.0.250424
 QNN_SDK_VERSION=2.35.0.250530
+#fully official QNN SDK, will be downloaded automatically via this script
 QNN_SDK_PATH=${PROJECT_ROOT_PATH}/prebuilts/QNN_SDK/qairt/2.34.0.250424/
 QNN_SDK_PATH=${PROJECT_ROOT_PATH}/prebuilts/QNN_SDK/qairt/2.35.0.250530/
 
