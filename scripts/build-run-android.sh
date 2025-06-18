@@ -57,7 +57,7 @@ GGMLDSP_RELEASE_DATE=20250609
 
 ######## part-2: contents in this part can be modified ########
 
-PROMPT_STRING="every day of your life, it is important to take the time to “smell the roses” — to appreciate the experiences that lead to happiness. This is part of being truly happy.Happiness is a state of mind. It starts with accepting where you are, knowing where you are going and planning to enjoy every moment along the way. You know how to be happy, and feel that you have enough time or money or love or whatever you need to achieve your goals. And just feeling that you have enough of everything means that you do indeed have enough.You have to choose to be happy, and focus upon being happy, in order to be happy. If you instead focus upon knowing that you will be happy if you achieve something, you will never be happy, as you have not learned to “smell the roses”. The irony is that when you are happy, you are inevitably more productive, and far more likely to achieve what everything-seekers are seeking.you will never be happy, as you have not learned to “smell the roses”. The irony is that when you are happy, you are inevitably more productive, and far more likely to achieve what everything-seekers are seeking."
+PROMPT_STRING="every day of your life, it is important to take the time to smell the roses — to appreciate the experiences that lead to happiness. This is part of being truly happy.Happiness is a state of mind. It starts with accepting where you are, knowing where you are going and planning to enjoy every moment along the way. You know how to be happy, and feel that you have enough time or money or love or whatever you need to achieve your goals. And just feeling that you have enough of everything means that you do indeed have enough.You have to choose to be happy, and focus upon being happy, in order to be happy. If you instead focus upon knowing that you will be happy if you achieve something, you will never be happy, as you have not learned to smell the roses. The irony is that when you are happy, you are inevitably more productive, and far more likely to achieve what everything-seekers are seeking. you will never be happy, as you have not learned to smell the roses. The irony is that when you are happy, you are inevitably more productive, and far more likely to achieve what everything-seekers are seeking."
 PROMPT_STRING="introduce the movie Once Upon a Time in America briefly.\n"
 
 #for llama-cli, 20.4 MiB in models/t5-very-small-random-F32.gguf
@@ -359,6 +359,7 @@ function check_and_download_model()
     if [ $? -eq 0 ]; then
         printf "the prebuild LLM model ${model_name} already exist on Android phone\n"
     else
+        printf "the prebuild LLM model ${model_name} not exist on Android phone\n"
         wget --no-config --quiet --show-progress -O ${PROJECT_ROOT_PATH}/models/${model_name} ${model_url}
         adb push ${PROJECT_ROOT_PATH}/models/${model_name} /sdcard/
     fi
@@ -440,7 +441,7 @@ function run_llamacli()
 {
     prepare_run_on_phone llama-cli
 
-    echo "${REMOTE_PATH}/llama-cli ${running_params} -mg $qnnbackend -no-cnv -m ${TEST_MODEL_NAME} -p \"introduce the movie Once Upon a Time in America briefly.\n\""
+    echo "${REMOTE_PATH}/llama-cli ${running_params} -mg $qnnbackend -no-cnv -m ${TEST_MODEL_NAME} -p \"${PROMPT_STRING}\""
     adb shell "cd ${REMOTE_PATH} \
                && export LD_LIBRARY_PATH=${REMOTE_PATH} \
                && ${REMOTE_PATH}/llama-cli ${running_params} -mg $qnnbackend -no-cnv -m ${TEST_MODEL_NAME} -p \"${PROMPT_STRING}\""
