@@ -1323,7 +1323,10 @@ public:
         if (g_hexagon_profiler.profiler_get_frame_index() <= g_hexagon_profiler.profiler_get_threshold_count()) {
             const char * devname = ggml_backend_hexagon_get_devname(g_hexagon_appcfg.hexagon_backend);
             if (g_hexagon_appcfg.hexagon_backend != HEXAGON_BACKEND_GGML) {
-                devname += 16;
+                //add this check for a special scenario: a invalid value passed from user's program
+                if (0 != memcmp(devname, "unknown", strlen("unknown"))) {
+                    devname += 16;
+                }
             }
             GGMLHEXAGON_LOG_VERBOSE("inference duration of %s through %s: %lld microseconds",
                                     _perf_name.c_str(), devname, _duration);
@@ -6402,7 +6405,7 @@ static void ggml_backend_hexagon_device_get_props(ggml_backend_dev_t dev,
 static ggml_backend_t ggml_backend_hexagon_device_init_backend(ggml_backend_dev_t dev, const char * params) {
     GGML_UNUSED(dev);
     GGMLHEXAGON_LOG_DEBUG("enter %s\n", __func__);
-    size_t dev_index = 0;
+    int dev_index = 0;
 
     //case-1: test-backend-ops or other similar scenario: calling ggml_backend_dev_init(dev, reinterpret_cast<const char *>(i)) directly in user's code
     ggmlhexagon_load_cfg();
@@ -6421,6 +6424,11 @@ static ggml_backend_t ggml_backend_hexagon_device_init_backend(ggml_backend_dev_
         GGMLHEXAGON_LOG_VERBOSE("program specified param is not nullptr");
         //user's program calling ggml_backend_hexagon_device_init_backend directly
         dev_index = (int)(intptr_t)params;
+        if (dev_index < 0) {
+            GGMLHEXAGON_LOG_VERBOSE("it shouldn't happend\n");
+            //test-thread-safety might-be running at the moment or a invalid value passed from user's program
+            dev_index = 0;
+        }
         g_hexagon_appcfg.hexagon_backend = dev_index;
         GGMLHEXAGON_LOG_VERBOSE("program specified dev_index %d\n", dev_index);
     }
