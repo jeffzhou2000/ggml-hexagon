@@ -11,19 +11,14 @@
 #
 set -e
 
+######## part-1: don't modify contents in this part ########
+
 PWD=`pwd`
 PROJECT_HOME_PATH=`pwd`
 PROJECT_ROOT_PATH=${PROJECT_HOME_PATH}
 
 #running path on Android phone
 REMOTE_PATH=/data/local/tmp/
-
-#for llama-cli, 20.4 MiB in models/t5-very-small-random-F32.gguf
-TEST_MODEL_NAME=/sdcard/t5-very-small-random-F32.gguf
-
-#for llama-bench, 1.12 GiB, will be downloadded automatically via this script from
-#https://huggingface.co/Qwen/Qwen1.5-1.8B-Chat-GGUF/blob/main/qwen1_5-1_8b-chat-q4_0.gguf
-GGUF_MODEL_NAME=/sdcard/qwen1_5-1_8b-chat-q4_0.gguf
 
 #Android NDK can be found at:
 #https://developer.android.com/ndk/downloads
@@ -51,6 +46,28 @@ HEXAGON_SDK_PATH=/opt/qcom/Hexagon_SDK/6.2.0.1
 #customized/tailored Hexagon SDK from the offcial Hexagon SDK for simplify workflow
 HEXAGON_SDK_PATH=${PROJECT_ROOT_PATH}/prebuilts/Hexagon_SDK/6.2.0.1
 
+#running_params=" -mg 2 -ngl 99 -t 8 -fa 1 "
+#running_params=" -mg 2 -ngl 99 -t 8 "
+running_params=" -ngl 99 -t 8 -n 256 --no-warmup "
+
+#available prebuilt libs can be found at prebuilts/ggml-dsp
+#GGMLDSP_RELEASE_DATE=20250531
+GGMLDSP_RELEASE_DATE=20250609
+
+
+######## part-2: contents in this part can be modified ########
+
+PROMPT_STRING="every day of your life, it is important to take the time to “smell the roses” — to appreciate the experiences that lead to happiness. This is part of being truly happy.Happiness is a state of mind. It starts with accepting where you are, knowing where you are going and planning to enjoy every moment along the way. You know how to be happy, and feel that you have enough time or money or love or whatever you need to achieve your goals. And just feeling that you have enough of everything means that you do indeed have enough.You have to choose to be happy, and focus upon being happy, in order to be happy. If you instead focus upon knowing that you will be happy if you achieve something, you will never be happy, as you have not learned to “smell the roses”. The irony is that when you are happy, you are inevitably more productive, and far more likely to achieve what everything-seekers are seeking.you will never be happy, as you have not learned to “smell the roses”. The irony is that when you are happy, you are inevitably more productive, and far more likely to achieve what everything-seekers are seeking."
+PROMPT_STRING="introduce the movie Once Upon a Time in America briefly.\n"
+
+#for llama-cli, 20.4 MiB in models/t5-very-small-random-F32.gguf
+TEST_MODEL_NAME=/sdcard/t5-very-small-random-F32.gguf
+#for llama-cli, 1.1 GiB, will be downloaded automatically via this script
+TEST_MODEL_NAME=/sdcard/t5-277M-F32.gguf
+
+#for llama-bench, 1.12 GiB, will be downloadded automatically via this script
+GGUF_MODEL_NAME=/sdcard/qwen1_5-1_8b-chat-q4_0.gguf
+
 #available htp arch version:
 #v68 --- Snapdragon 888
 #v69 --- Snapdragon 8 Gen1
@@ -74,20 +91,12 @@ HEXAGON_SDK_PATH=${PROJECT_ROOT_PATH}/prebuilts/Hexagon_SDK/6.2.0.1
 #HTP_ARCH_VERSION=v79
 #HTP_ARCH_VERSION_a=V79
 
-#default HTP_ARCH
 #modify the following two lines to adapt to test phone
 HTP_ARCH_VERSION=v79
 HTP_ARCH_VERSION_a=V79
 
-#available prebuilt libs can be found at prebuilts/ggml-dsp
-#modify the following line to select the appropriate libggmldsp-skel.so
-#GGMLDSP_RELEASE_DATE=20250531
-GGMLDSP_RELEASE_DATE=20250609
 
-#running_params=" -mg 2 -ngl 99 -t 8 -fa 1 "
-#running_params=" -mg 2 -ngl 99 -t 8 "
-
-running_params=" -ngl 99 -t 8 -n 256"
+######## part-3: don't modify contents in this part ########
 
 function dump_vars()
 {
@@ -372,6 +381,10 @@ function check_prebuilt_models()
     #https://huggingface.co/zhouwg/kantv/blob/main/MiniCPM4-0.5B-F32.gguf,                              size 1.74 GiB
     #original model:  https://huggingface.co/openbmb/MiniCPM4-0.5B
 
+    #customized LLM models for compare inference peformance of QNN-CPU, QNN-GPU, QNN-NPU, cDSP, the default ggml backend
+    #during development stage
+    #https://huggingface.co/zhouwg/kantv/blob/main/t5-277M-F32.gguf,                                    size 1.1  GiB
+
     set +e
 
     adb shell ls /sdcard/t5-very-small-random-F32.gguf
@@ -384,6 +397,7 @@ function check_prebuilt_models()
 
     check_and_download_model qwen1_5-1_8b-chat-q4_0.gguf https://huggingface.co/Qwen/Qwen1.5-1.8B-Chat-GGUF/resolve/main/qwen1_5-1_8b-chat-q4_0.gguf
     #check_and_download_model MiniCPM4-0.5B-F32.gguf https://huggingface.co/zhouwg/kantv/resolve/main/MiniCPM4-0.5B-F32.gguf
+    check_and_download_model t5-277M-F32.gguf https://huggingface.co/zhouwg/kantv/resolve/main/t5-277M-F32.gguf
 
     set -e
 }
@@ -429,7 +443,7 @@ function run_llamacli()
     echo "${REMOTE_PATH}/llama-cli ${running_params} -mg $qnnbackend -no-cnv -m ${TEST_MODEL_NAME} -p \"introduce the movie Once Upon a Time in America briefly.\n\""
     adb shell "cd ${REMOTE_PATH} \
                && export LD_LIBRARY_PATH=${REMOTE_PATH} \
-               && ${REMOTE_PATH}/llama-cli ${running_params} -mg $qnnbackend -no-cnv -m ${TEST_MODEL_NAME} -p \"introduce the movie Once Upon a Time in America briefly.\n\""
+               && ${REMOTE_PATH}/llama-cli ${running_params} -mg $qnnbackend -no-cnv -m ${TEST_MODEL_NAME} -p \"${PROMPT_STRING}\""
 
 }
 
@@ -585,6 +599,8 @@ function show_usage()
     echo -e "\n\n\n"
 }
 
+
+######## part-4: entry point  ########
 
 show_pwd
 
