@@ -63,7 +63,7 @@ PROMPT_STRING="introduce the movie Once Upon a Time in America briefly.\n"
 #for llama-cli, 20.4 MiB in models/t5-very-small-random-F32.gguf
 TEST_MODEL_NAME=/sdcard/t5-very-small-random-F32.gguf
 #for llama-cli, 1.1 GiB, will be downloaded automatically via this script
-TEST_MODEL_NAME=/sdcard/t5-277M-F32.gguf
+#TEST_MODEL_NAME=/sdcard/t5-277M-F32.gguf
 
 #for llama-bench, 1.12 GiB, will be downloadded automatically via this script
 GGUF_MODEL_NAME=/sdcard/qwen1_5-1_8b-chat-q4_0.gguf
@@ -465,6 +465,18 @@ function run_llamabench()
 }
 
 
+function run_threadsafety()
+{
+    prepare_run_on_phone test-thread-safety
+
+    adb shell "cd ${REMOTE_PATH} \
+               && export LD_LIBRARY_PATH=${REMOTE_PATH} \
+               && ${REMOTE_PATH}/test-thread-safety -np 2 -mg $qnnbackend -m ${GGUF_MODEL_NAME}"
+
+}
+
+
+
 function run_test-ops()
 {
     prepare_run_on_phone test-backend-ops
@@ -474,6 +486,7 @@ function run_test-ops()
                && ${REMOTE_PATH}/test-backend-ops test"
 
 }
+
 
 function run_test-op()
 {
@@ -594,6 +607,7 @@ function show_usage()
     echo "  $0 run_testop     ADD/MUL_MAT"
     echo "  $0 run_llamacli                 0(QNN_CPU)/1(QNN_GPU)/2(QNN_NPU)/3(cdsp)/4(ggml)"
     echo "  $0 run_llamabench               0(QNN_CPU)/1(QNN_GPU)/2(QNN_NPU)/3(cdsp)/4(ggml)"
+    echo "  $0 run_threadsafety             0(QNN_CPU)/1(QNN_GPU)/2(QNN_NPU)/3(cdsp)/4(ggml)"
     echo "  $0 run_benchmark  ADD/MUL_MAT   0(QNN_CPU)/1(QNN_GPU)/2(QNN_NPU)/3(cdsp)/4(ggml)"
     echo "  $0 run_benchmark  ADD/MUL_MAT   0(QNN_CPU)/1(QNN_GPU)/2(QNN_NPU)/3(cdsp)/4(ggml) 256/512/1024/2048/4096 256/512/1024/2048/4096"
 
@@ -654,6 +668,10 @@ elif [ $# == 2 ]; then
     elif [ "$1" == "run_llamabench" ]; then
         qnnbackend=$2
         run_llamabench
+        exit 0
+    elif [ "$1" == "run_threadsafety" ]; then
+        qnnbackend=$2
+        run_threadsafety
         exit 0
     else
         show_usage
