@@ -469,9 +469,10 @@ function run_threadsafety()
 {
     prepare_run_on_phone test-thread-safety
 
+    echo "${REMOTE_PATH}/test-thread-safety -np 2 -mg $qnnbackend -m ${GGUF_MODEL_NAME} -p \"hello,world\" -n 256 -ngl 99 "
     adb shell "cd ${REMOTE_PATH} \
                && export LD_LIBRARY_PATH=${REMOTE_PATH} \
-               && ${REMOTE_PATH}/test-thread-safety -np 2 -mg $qnnbackend -m ${GGUF_MODEL_NAME}"
+               && ${REMOTE_PATH}/test-thread-safety -np 1 -mg $qnnbackend -m ${GGUF_MODEL_NAME} -p \"hello,world\" -n 256 -ngl 99 "
 
 }
 
