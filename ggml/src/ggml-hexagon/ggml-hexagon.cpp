@@ -881,9 +881,9 @@ static void ggmlhexagon_get_processname(char * p_name) {
         GGMLHEXAGON_LOG_WARN("failed to get process name, reason:%s", strerror(errno));
         return;
     }
-    GGMLHEXAGON_LOG_VERBOSE("process name %s", tmpbuf);
+    GGMLHEXAGON_LOG_DEBUG("process name %s", tmpbuf);
     const char * realname = strrchr(tmpbuf, '/') + 1;
-    GGMLHEXAGON_LOG_VERBOSE("process name %s", realname);
+    GGMLHEXAGON_LOG_DEBUG("process name %s", realname);
     snprintf(p_name, GGMLHEXAGON_TMPBUF_LEN, "%s", realname);
 #endif
 }
@@ -895,6 +895,9 @@ static bool ggmlhexagon_is_llamabench_running() {
     ggmlhexagon_get_processname(processname);
     if (0 != processname[0] && 0 != processname[1] && 0 != processname[10]) {
         if (0 == memcmp(processname, "llama-bench", strlen("llama-bench"))) {
+            return true;
+        }
+        if (0 == memcmp(processname, "test-thread-safety", strlen("test-thread-safety"))) {
             return true;
         }
     }
@@ -1967,7 +1970,7 @@ static void ggmlhexagon_load_cfg() {
     ggmlhexagon_get_timestring(time_string);
     GGMLHEXAGON_LOG_DEBUG("program running start time:%s", time_string);
     std::string cfg_filename = std::string(g_hexagon_appcfg.runtime_libpath) + std::string(g_hexagon_appcfg.cfgfilename);
-    GGMLHEXAGON_LOG_INFO("load hexagon appcfg from %s", cfg_filename.c_str());
+
     hexagon_appcfg hexagoncfg_instance;
     hexagoncfg_instance.load(cfg_filename);
     hexagoncfg_instance.dump([](const std::string & section, const std::string & key, const std::string value) {
@@ -2001,18 +2004,35 @@ static void ggmlhexagon_load_cfg() {
     hexagoncfg_instance.get_intvalue("cdsp", "enable_all_q_mulmat", g_hexagon_appcfg.enable_all_q_mulmat, 0);
     hexagoncfg_instance.get_intvalue("cdsp", "thread_counts", g_hexagon_appcfg.thread_counts, 4);
 
-    GGMLHEXAGON_LOG_INFO("internal ggml_hexagon_version=%s", g_hexagon_appcfg.ggml_hexagon_version);
-    GGMLHEXAGON_LOG_INFO("internal ggml_dsp_version=%s", g_hexagon_appcfg.ggml_dsp_version);
-    GGMLHEXAGON_LOG_INFO("external ggml_hexagon_version=%s", version.c_str());
-    GGMLHEXAGON_LOG_INFO("external ggml_dsp_version=%s", ggmldsp_version.c_str());
     memcpy(g_hexagon_appcfg.ggml_dsp_version, ggmldsp_version.c_str(), strlen(ggmldsp_version.c_str()));
-    GGMLHEXAGON_LOG_INFO("hwaccel_approach=%d(%s)", g_hexagon_appcfg.hwaccel_approach,
-                         ggmlhexagon_get_hwaccel_approach_name(g_hexagon_appcfg.hwaccel_approach));
-    GGMLHEXAGON_LOG_INFO("hexagon_backend=%d(%s)", g_hexagon_appcfg.hexagon_backend,
-                         ggml_backend_hexagon_get_devname(g_hexagon_appcfg.hexagon_backend));
-    GGMLHEXAGON_LOG_INFO("runtime libpath=%s", g_hexagon_appcfg.runtime_libpath);
-    GGMLHEXAGON_LOG_INFO("enable_perf=%d", g_hexagon_appcfg.enable_perf);
-    GGMLHEXAGON_LOG_INFO("enable_profiler=%d", g_hexagon_appcfg.enable_profiler);
+
+    if (ggmlhexagon_is_llamabench_running()) {
+        GGMLHEXAGON_LOG_VERBOSE("load hexagon appcfg from %s", cfg_filename.c_str());
+        GGMLHEXAGON_LOG_VERBOSE("internal ggml_hexagon_version=%s", g_hexagon_appcfg.ggml_hexagon_version);
+        GGMLHEXAGON_LOG_VERBOSE("internal ggml_dsp_version=%s", g_hexagon_appcfg.ggml_dsp_version);
+        GGMLHEXAGON_LOG_VERBOSE("external ggml_hexagon_version=%s", version.c_str());
+        GGMLHEXAGON_LOG_VERBOSE("external ggml_dsp_version=%s", ggmldsp_version.c_str());
+        GGMLHEXAGON_LOG_VERBOSE("hwaccel_approach=%d(%s)", g_hexagon_appcfg.hwaccel_approach,
+                             ggmlhexagon_get_hwaccel_approach_name(g_hexagon_appcfg.hwaccel_approach));
+        GGMLHEXAGON_LOG_VERBOSE("hexagon_backend=%d(%s)", g_hexagon_appcfg.hexagon_backend,
+                             ggml_backend_hexagon_get_devname(g_hexagon_appcfg.hexagon_backend));
+        GGMLHEXAGON_LOG_VERBOSE("runtime libpath=%s", g_hexagon_appcfg.runtime_libpath);
+        GGMLHEXAGON_LOG_VERBOSE("enable_perf=%d", g_hexagon_appcfg.enable_perf);
+        GGMLHEXAGON_LOG_VERBOSE("enable_profiler=%d", g_hexagon_appcfg.enable_profiler);
+    } else {
+        GGMLHEXAGON_LOG_INFO("load hexagon appcfg from %s", cfg_filename.c_str());
+        GGMLHEXAGON_LOG_INFO("internal ggml_hexagon_version=%s", g_hexagon_appcfg.ggml_hexagon_version);
+        GGMLHEXAGON_LOG_INFO("internal ggml_dsp_version=%s", g_hexagon_appcfg.ggml_dsp_version);
+        GGMLHEXAGON_LOG_INFO("external ggml_hexagon_version=%s", version.c_str());
+        GGMLHEXAGON_LOG_INFO("external ggml_dsp_version=%s", ggmldsp_version.c_str());
+        GGMLHEXAGON_LOG_INFO("hwaccel_approach=%d(%s)", g_hexagon_appcfg.hwaccel_approach,
+                             ggmlhexagon_get_hwaccel_approach_name(g_hexagon_appcfg.hwaccel_approach));
+        GGMLHEXAGON_LOG_INFO("hexagon_backend=%d(%s)", g_hexagon_appcfg.hexagon_backend,
+                             ggml_backend_hexagon_get_devname(g_hexagon_appcfg.hexagon_backend));
+        GGMLHEXAGON_LOG_INFO("runtime libpath=%s", g_hexagon_appcfg.runtime_libpath);
+        GGMLHEXAGON_LOG_INFO("enable_perf=%d", g_hexagon_appcfg.enable_perf);
+        GGMLHEXAGON_LOG_INFO("enable_profiler=%d", g_hexagon_appcfg.enable_profiler);
+    }
 
     if (precision_mode.find("fp16") != std::string::npos) {
         g_hexagon_appcfg.precision_mode = 1;
@@ -2040,7 +2060,11 @@ void ggml_backend_set_hexagon_cfg(int new_hexagon_backend, int new_hwaccel_appro
     hexagoncfg_instance.dump([](const std::string & section, const std::string & key, const std::string value) {
         std::ostringstream  tmposs;
         tmposs << "section[" << std::setw(10) << std::left << section << "],[" << std::setw(25) << std::left << key << "] = [" << value << "]";
-        GGMLHEXAGON_LOG_INFO("%s", tmposs.str().c_str());
+        if (ggmlhexagon_is_llamabench_running()) {
+            GGMLHEXAGON_LOG_VERBOSE("%s", tmposs.str().c_str());
+        } else {
+            GGMLHEXAGON_LOG_INFO("%s", tmposs.str().c_str());
+        }
     });
 }
 
@@ -2051,7 +2075,7 @@ static bool ggmlhexagon_check_valid_appcfg() {
                           ggmlhexagon_get_hwaccel_approach_name(g_hexagon_appcfg.hwaccel_approach));
     GGMLHEXAGON_LOG_DEBUG("user's specified hexagon_backend=%d", g_hexagon_appcfg.hexagon_backend);
     if (g_hexagon_appcfg.hexagon_backend >= GGML_HEXAGON_MAX_DEVICES) {
-        GGMLHEXAGON_LOG_INFO("using default ggml backend");
+        GGMLHEXAGON_LOG_VERBOSE("using default ggml backend");
         is_valid_appcfg = false;
     }
 
@@ -2075,7 +2099,7 @@ static bool ggmlhexagon_check_valid_appcfg() {
 
         if (1 == g_hexagon_appcfg.enable_all_q_mulmat) {
             if (0 == g_hexagon_appcfg.enable_q_mulmat) {
-                GGMLHEXAGON_LOG_VERBOSE("ensure set enable_q_mulmat to 1 firstly when set enable_all_q_mulmat to 1 if you are not currently comparing the performance of GGML_OP_ADD between QNNCPU, QNNGPU, QNNNPU, cDSP, ggml");
+                GGMLHEXAGON_LOG_DEBUG("ensure set enable_q_mulmat to 1 firstly when set enable_all_q_mulmat to 1 if you are not currently comparing the performance of GGML_OP_ADD between QNNCPU, QNNGPU, QNNNPU, cDSP, ggml");
                 //is_valid_appcfg = false;
             }
         }
