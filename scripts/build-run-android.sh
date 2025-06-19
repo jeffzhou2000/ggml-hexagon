@@ -61,23 +61,24 @@ PROMPT_STRING="every day of your life, it is important to take the time to smell
 PROMPT_STRING="introduce the movie Once Upon a Time in America briefly.\n"
 
 #for llama-cli, 20.4 MiB in models/t5-very-small-random-F32.gguf
-TEST_MODEL_NAME=/sdcard/t5-very-small-random-F32.gguf
+#TEST_MODEL_NAME=/sdcard/t5-very-small-random-F32.gguf
 #for llama-cli, 1.1 GiB, will be downloaded automatically via this script
 #TEST_MODEL_NAME=/sdcard/t5-277M-F32.gguf
+TEST_MODEL_NAME=/sdcard/qwen1_5-1_8b-chat-q4_0.gguf
+#self-defined LLM models
+#TEST_MODEL_NAME=/sdcard/Qwen3-8B-Q8_0.gguf
+#TEST_MODEL_NAME=/sdcard/Qwen3-4B-Q8_0.gguf
+#TEST_MODEL_NAME=/sdcard/gemma-3-4b-it-Q8_0.gguf
+
 
 #for llama-bench, 1.12 GiB, will be downloadded automatically via this script
 GGUF_MODEL_NAME=/sdcard/qwen1_5-1_8b-chat-q4_0.gguf
 
-#available htp arch version:
-#v68 --- Snapdragon 888
-#v69 --- Snapdragon 8 Gen1
+#ref: https://github.com/quic/ai-hub-apps/tree/main/tutorials/llm_on_genie
+#supported htp arch version:
 #v73 --- Snapdragon 8 Gen2
 #v75 --- Snapdragon 8 Gen3
-#v79 --- Snapdragon 8 Elite(aka Gen4)
-
-#8Gen1
-#HTP_ARCH_VERSION=v69
-#HTP_ARCH_VERSION_a=V69
+#v79 --- Snapdragon 8 Elite
 
 #8Gen2
 #HTP_ARCH_VERSION=v73
