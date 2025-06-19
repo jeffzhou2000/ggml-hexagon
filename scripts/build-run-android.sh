@@ -112,27 +112,56 @@ function show_pwd()
 }
 
 
-function check_hexagon_sdk()
+function check_command_in_host()
+{
+    set +e
+    cmd=$1
+    ls /usr/bin/${cmd}
+    if [ $? -eq 0 ]; then
+        #printf "${cmd} already exist on host machine\n"
+        echo ""
+    else
+        printf "${cmd} not exist on host machine, pls install command line utility ${cmd} firstly and accordingly\n"
+        exit 1
+    fi
+    set -e
+}
+
+
+function check_commands_in_host()
+{
+    check_command_in_host wget
+    check_command_in_host xzcat
+}
+
+
+function check_and_download_hexagon_sdk()
 {
     is_hexagon_llvm_exist=1
     if [ ! -f ${PROJECT_ROOT_PATH}/prebuilts/Hexagon_SDK/6.2.0.1/tools/HEXAGON_Tools/8.8.06/NOTICE.txt ]; then
-        echo -e "${TEXT_RED}hexagon LLVM toolchain not exist, pls check...${TEXT_RESET}\n"
+        echo -e "${TEXT_RED}minimal-hexagon-sdk not exist...${TEXT_RESET}\n"
         is_hexagon_llvm_exist=0
-    else
-        printf "hexagon LLVM toolchain already exist\n\n"
     fi
 
-    #download customized LLVM toolchain HEXAGON_TOOLs_8.8.06.tar.gz
     if [ ${is_hexagon_llvm_exist} -eq 0 ]; then
-        echo -e "begin downloading hexagon LLVM toolchain \n"
-        wget --no-config --quiet --show-progress -O ${PROJECT_ROOT_PATH}/prebuilts/Hexagon_SDK/6.2.0.1/tools/HEXAGON_Tools/HEXAGON_TOOLs_8.8.06.tar.gz https://github.com/kantv-ai/toolchain/raw/refs/heads/main/HEXAGON_TOOLs_8.8.06.tar.gz
-        if [ $? -ne 0 ]; then
-            printf "failed to download hexagon LLVM toolchain\n"
-            exit 1
+        if [ -f ${PROJECT_ROOT_PATH}/prebuilts/Hexagon_SDK/minimal-hexagon-sdk-6.2.0.1.xz ]; then
+            echo -e "minimal-hexagon-sdk-6.2.0.1.xz already exist\n"
         else
-            zcat ${PROJECT_ROOT_PATH}/prebuilts/Hexagon_SDK/6.2.0.1/tools/HEXAGON_Tools/HEXAGON_TOOLs_8.8.06.tar.gz | tar -C ${PROJECT_ROOT_PATH}/prebuilts/Hexagon_SDK/6.2.0.1/tools/HEXAGON_Tools -xvf -
-            printf "install hexagon LLVM toolchain successfully\n\n"
+            echo -e "begin downloading minimal-hexagon-sdk-6.2.0.1.xz \n"
+            wget --no-config --quiet --show-progress -O ${PROJECT_ROOT_PATH}/prebuilts/Hexagon_SDK/minimal-hexagon-sdk-6.2.0.1.xz https://github.com/kantv-ai/toolchain/raw/refs/heads/main/minimal-hexagon-sdk-6.2.0.1.xz
+            if [ $? -ne 0 ]; then
+                printf "failed to download minimal-hexagon-sdk-6.2.0.1.xz\n"
+                exit 1
+            fi
         fi
+
+        echo -e "begin decompressing minimal-hexagon-sdk-6.2.0.1.xz \n"
+        xzcat ${PROJECT_ROOT_PATH}/prebuilts/Hexagon_SDK/minimal-hexagon-sdk-6.2.0.1.xz | tar -C ${PROJECT_ROOT_PATH}/prebuilts/Hexagon_SDK/ -xf -
+        if [ $? -ne 0 ]; then
+            printf "failed to decompress minimal-hexagon-sdk-6.2.0.1.xz\n"
+            exit 1
+        fi
+        printf "install minimal-hexagon-sdk successfully\n\n"
     fi
 
     if [ ! -d ${HEXAGON_SDK_PATH} ]; then
@@ -166,7 +195,7 @@ function check_and_download_qnn_sdk()
         printf "Qualcomm QNN SDK saved to ${QNN_SDK_PATH} \n\n"
         cd ${PROJECT_ROOT_PATH}
     else
-        printf "Qualcomm QNN SDK already exist:${QNN_SDK_PATH} \n\n"
+        printf "Qualcomm QNN SDK already exist:    ${QNN_SDK_PATH} \n\n"
     fi
 }
 
@@ -193,14 +222,14 @@ function check_and_download_ndk()
         unzip ${ANDROID_NDK_FULLNAME}
 
         if [ $? -ne 0 ]; then
-            printf "failed to download android ndk to %s \n" "${ANDROID_NDK}"
+            printf "failed to download Android NDK to %s \n" "${ANDROID_NDK}"
             exit 1
         fi
         cd ${PROJECT_ROOT_PATH}
 
-        printf "android ndk saved to ${ANDROID_NDK} \n\n"
+        printf "Android NDK saved to ${ANDROID_NDK} \n\n"
     else
-        printf "android ndk already exist:${ANDROID_NDK} \n\n"
+        printf "Android NDK already exist:         ${ANDROID_NDK} \n\n"
     fi
 }
 
@@ -281,7 +310,7 @@ function build_ggml_hexagon()
     show_pwd
     check_and_download_ndk
     check_and_download_qnn_sdk
-    check_hexagon_sdk
+    check_and_download_hexagon_sdk
     dump_vars
     remove_temp_dir
     build_arm64
@@ -293,7 +322,7 @@ function build_ggml_hexagon_debug()
     show_pwd
     check_and_download_ndk
     check_and_download_qnn_sdk
-    check_hexagon_sdk
+    check_and_download_hexagon_sdk
     dump_vars
     remove_temp_dir
     build_arm64_debug
@@ -600,8 +629,10 @@ echo "opname list: "
 echo ${oplist}
 }
 
+
 function show_usage()
 {
+    echo -e "\n\n\n"
     echo "Usage:"
     echo "  $0 help"
     echo "  $0 print_oplist"
@@ -624,9 +655,10 @@ function show_usage()
 
 show_pwd
 
+check_commands_in_host
 check_and_download_ndk
 check_and_download_qnn_sdk
-check_hexagon_sdk
+check_and_download_hexagon_sdk
 check_prebuilt_models
 
 if [ $# == 0 ]; then
