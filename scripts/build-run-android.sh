@@ -96,7 +96,7 @@ HTP_ARCH_VERSION=v79
 HTP_ARCH_VERSION_a=V79
 
 
-######## part-3: don't modify contents in this part ########
+######## part-3: utilities and functions ########
 
 function dump_vars()
 {
@@ -215,6 +215,7 @@ function build_arm64
     cd -
 }
 
+
 function build_arm64_debug
 {
     cmake -H. -B./out/android -DCMAKE_BUILD_TYPE=Debug -DGGML_OPENMP=OFF -DCMAKE_TOOLCHAIN_FILE=${ANDROID_NDK}/build/cmake/android.toolchain.cmake -DANDROID_ABI=arm64-v8a -DANDROID_PLATFORM=latest -DCMAKE_C_FLAGS=-march=armv8.7-a -DGGML_HEXAGON=ON -DLLAMA_CURL=OFF -DQNN_SDK_PATH=${QNN_SDK_PATH} -DHEXAGON_SDK_PATH=${HEXAGON_SDK_PATH} -DHTP_ARCH_VERSION=${HTP_ARCH_VERSION}
@@ -286,6 +287,7 @@ function build_ggml_hexagon()
     build_arm64
 }
 
+
 function build_ggml_hexagon_debug()
 {
     show_pwd
@@ -296,6 +298,7 @@ function build_ggml_hexagon_debug()
     remove_temp_dir
     build_arm64_debug
 }
+
 
 #added on 05/31/2025, for purpose of non-tech factor
 function prepare_ggmlhexagon()
@@ -429,9 +432,10 @@ function prepare_run_on_phone()
     #prepare_ggmlhexagon
 
     #for verify prebuilt binary library(after 06/2025) on Hexagon cDSP
+    #comment this line when build library on Hexagon cDSP from the reference/self-develop source codes in this project
     prepare_ggmldsp
 
-    #for build library on Hexagon cDSP from the reference source codes in this project
+    #un-comment this line when build library on Hexagon cDSP from the reference/self-develop source codes in this project
     #adb push ./scripts/ggml-hexagon.cfg ${REMOTE_PATH}/ggml-hexagon.cfg
 
     adb shell chmod +x ${REMOTE_PATH}/${program}

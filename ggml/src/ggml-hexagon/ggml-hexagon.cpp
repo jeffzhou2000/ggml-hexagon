@@ -1323,7 +1323,7 @@ public:
         if (g_hexagon_profiler.profiler_get_frame_index() <= g_hexagon_profiler.profiler_get_threshold_count()) {
             const char * devname = ggml_backend_hexagon_get_devname(g_hexagon_appcfg.hexagon_backend);
             if (g_hexagon_appcfg.hexagon_backend != HEXAGON_BACKEND_GGML) {
-                //add this check for a special scenario: a invalid value passed from user's program
+                //add this check for a special scenario: an invalid value passed from user's program
                 if (0 != memcmp(devname, "unknown", strlen("unknown"))) {
                     devname += 16;
                 }
@@ -6426,7 +6426,7 @@ static ggml_backend_t ggml_backend_hexagon_device_init_backend(ggml_backend_dev_
         dev_index = (int)(intptr_t)params;
         if (dev_index < 0) {
             GGMLHEXAGON_LOG_VERBOSE("it shouldn't happend\n");
-            //test-thread-safety might-be running at the moment or a invalid value passed from user's program
+            //test-thread-safety might-be running at the moment or an invalid value passed from user's program
             dev_index = 0;
         }
         g_hexagon_appcfg.hexagon_backend = dev_index;
