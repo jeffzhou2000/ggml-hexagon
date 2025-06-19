@@ -5,7 +5,7 @@ we should strictly follow Qualcomm's IPR policy, even in open-source community.
 
 ### the [KanTV](https://github.com/kantv-ai) way
 
-- Simple is the beautiful
+- Simple is beautiful
 
   we believe the philosophy of "<b>simple is beautiful</b>" which <b>comes from the great Unix</b>.
 
