@@ -39,7 +39,9 @@ endif()
 
 #check whether user's specified htp arch is valid
 set(CHECK_HTP_ARCH "WRONG")
-foreach (feat v68 v69 v73 v75 v79)
+#ref: https://github.com/quic/ai-hub-apps/tree/main/tutorials/llm_on_genie
+#foreach (feat v68 v69 v73 v75 v79)
+foreach (feat v73 v75 v79)
     if (${feat} STREQUAL ${HTP_ARCH_VERSION})
         set(CHECK_HTP_ARCH "GOOD")
     endif()
