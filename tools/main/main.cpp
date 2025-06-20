@@ -97,10 +97,10 @@ int main(int argc, char ** argv) {
     }
     printf("backend %d\n", backend);
     if (backend >= HEXAGON_BACKEND_CDSP) {
-        ggml_backend_set_hexagon_cfg(backend, HWACCEL_CDSP);
+        ggml_backend_hexagon_set_cfg(backend, HWACCEL_CDSP);
     }
     if (backend < HEXAGON_BACKEND_CDSP) {
-        ggml_backend_set_hexagon_cfg(backend, HWACCEL_QNN);
+        ggml_backend_hexagon_set_cfg(backend, HWACCEL_QNN);
     }
 #endif
 

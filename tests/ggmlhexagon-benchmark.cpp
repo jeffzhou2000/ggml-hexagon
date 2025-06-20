@@ -320,10 +320,10 @@ int main(int argc, char * argv[]) {
 #ifdef GGML_USE_HEXAGON
     //avoid manually modify ggml-hexagon.cfg
     if (n_backend_type >= HEXAGON_BACKEND_CDSP) {
-        ggml_backend_set_hexagon_cfg(n_backend_type, HWACCEL_CDSP);
+        ggml_backend_hexagon_set_cfg(n_backend_type, HWACCEL_CDSP);
     }
     if (n_backend_type < HEXAGON_BACKEND_CDSP) {
-        ggml_backend_set_hexagon_cfg(n_backend_type, HWACCEL_QNN);
+        ggml_backend_hexagon_set_cfg(n_backend_type, HWACCEL_QNN);
     }
 #endif
 
@@ -457,7 +457,11 @@ int main(int argc, char * argv[]) {
     get_timestring(currenttime_string);
 
 #ifdef GGML_USE_HEXAGON
-    printf("[%s] duration of ut GGML_OP_%s with backend %s: %ld milliseconds\n", currenttime_string, ggml_op_name((enum ggml_op)n_ggml_op_type), ggml_backend_hexagon_get_devname(n_backend_type), n_duration);
+    if (n_backend_type == HEXAGON_BACKEND_CDSP) {
+        printf("[%s] duration of ut GGML_OP_%s with backend %s(algo type:%d): %ld milliseconds\n", currenttime_string, ggml_op_name((enum ggml_op)n_ggml_op_type), ggml_backend_hexagon_get_devname(n_backend_type), ggml_backend_hexagon_get_mulmat_algotype(), n_duration);
+    } else {
+        printf("[%s] duration of ut GGML_OP_%s with backend %s: %ld milliseconds\n", currenttime_string, ggml_op_name((enum ggml_op)n_ggml_op_type), ggml_backend_hexagon_get_devname(n_backend_type), n_duration);
+    }
 #else
     printf("[%s] duration of ut GGML_OP_%s with the default ggml backend: %ld milliseconds\n", currenttime_string, ggml_op_name((enum ggml_op)n_ggml_op_type), n_duration);
 #endif
