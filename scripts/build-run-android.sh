@@ -486,16 +486,15 @@ function run_llamacli()
 function run_llamabench()
 {
     prepare_run_on_phone llama-bench
-    llamabench_running_params=" -ngl 99 -t 8 -n 256 "
 
     echo "adb shell \"cd ${REMOTE_PATH} \
                && export LD_LIBRARY_PATH=${REMOTE_PATH} \
-               && ${REMOTE_PATH}/llama-bench ${llamabench_running_params} -mg $qnnbackend -m ${GGUF_MODEL_NAME}\""
-    echo "${REMOTE_PATH}/llama-bench ${llamabench_running_params} -mg $qnnbackend -m ${GGUF_MODEL_NAME}"
+               && ${REMOTE_PATH}/llama-bench ${running_params} -mg $qnnbackend -m ${GGUF_MODEL_NAME}\""
+    echo "${REMOTE_PATH}/llama-bench ${running_params} -mg $qnnbackend -m ${GGUF_MODEL_NAME}"
 
     adb shell "cd ${REMOTE_PATH} \
                && export LD_LIBRARY_PATH=${REMOTE_PATH} \
-               && ${REMOTE_PATH}/llama-bench ${llamabench_running_params} -mg $qnnbackend -m ${GGUF_MODEL_NAME}"
+               && ${REMOTE_PATH}/llama-bench ${running_params} -mg $qnnbackend -m ${GGUF_MODEL_NAME}"
 
 }
 
