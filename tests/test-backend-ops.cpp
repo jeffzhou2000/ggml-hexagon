@@ -38,6 +38,10 @@
 #include <thread>
 #include <vector>
 
+#ifdef GGML_USE_HEXAGON
+#include "ggml-hexagon.h"
+#endif
+
 static void init_tensor_uniform(ggml_tensor * tensor, float min = -1.0f, float max = 1.0f) {
     size_t nels = ggml_nelements(tensor);
     std::vector<float> data(nels);
@@ -5457,6 +5461,19 @@ static std::vector<std::unique_ptr<test_case>> make_test_cases_eval() {
     test_cases.emplace_back(new test_falcon(2));
 #endif
 
+#ifdef GGML_USE_HEXAGON
+    //verify computation result of mulmat on cDSP
+    test_cases.emplace_back(new test_mul_mat(GGML_TYPE_F32,    GGML_TYPE_F32, 32, 14, 64, { 1,  1}, {1, 1}));
+    test_cases.emplace_back(new test_mul_mat(GGML_TYPE_F32,    GGML_TYPE_F32, 256, 128, 256, { 1,  1}, {1, 1}));
+    test_cases.emplace_back(new test_mul_mat(GGML_TYPE_F32,    GGML_TYPE_F32, 600, 300, 600, { 1,  1}, {1, 1}));
+    test_cases.emplace_back(new test_mul_mat(GGML_TYPE_F32,    GGML_TYPE_F32, 900, 450, 900, { 1,  1}, {1, 1}));
+    test_cases.emplace_back(new test_mul_mat(GGML_TYPE_F32,    GGML_TYPE_F32, 1024, 512, 1024, { 1,  1}, {1, 1}));
+    test_cases.emplace_back(new test_mul_mat(GGML_TYPE_F32,    GGML_TYPE_F32, 2048, 1024, 2048, { 1,  1}, {1, 1}));
+    test_cases.emplace_back(new test_mul_mat(GGML_TYPE_F32,    GGML_TYPE_F32, 4096, 38, 4096, { 1,  1}, {1, 1}));
+    //test_cases.emplace_back(new test_mul_mat(GGML_TYPE_F32,    GGML_TYPE_F32, 4096, 2048, 4096, { 1,  1}, {1, 1}));
+    //test_cases.emplace_back(new test_mul_mat(GGML_TYPE_F32,    GGML_TYPE_F32, 4096, 4096, 4096, { 1,  1}, {1, 1}));
+#endif
+
     return test_cases;
 }
 
@@ -5611,6 +5628,17 @@ int main(int argc, char ** argv) {
     const char * backend_filter = nullptr;
     const char * params_filter = nullptr;
 
+#ifdef GGML_USE_HEXAGON
+    int mulmat_algotype = 0;
+    for (int i = 1; i < argc; i++) {
+        if (0 == strcmp(argv[i], "-a")) {
+            mulmat_algotype = atoi(argv[i+1]);
+        }
+    }
+    printf("mulmat_algotype %d\n", mulmat_algotype);
+    ggml_backend_hexagon_set_mulmat_algotype(mulmat_algotype);
+#endif
+
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "test") == 0) {
             mode = MODE_TEST;
@@ -5649,6 +5677,13 @@ int main(int argc, char ** argv) {
                 usage(argv);
                 return 1;
             }
+#ifdef GGML_USE_HEXAGON
+        } else if (strcmp(argv[i], "-a") == 0) {
+            if (i + 1 < argc) {
+                char * temp = argv[++i];
+                (void)temp;
+            }
+#endif
         } else {
             usage(argv);
             return 1;

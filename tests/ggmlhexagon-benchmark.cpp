@@ -259,6 +259,7 @@ int main(int argc, char * argv[]) {
 
     int n_backend_type          = HEXAGON_BACKEND_QNNNPU;
     int n_ggml_op_type          = GGML_OP_ADD;
+    int n_mulmat_algotype       = 0;
 
     struct ggml_context * ctx   = nullptr;
     struct ggml_cgraph  * gf    = nullptr;
@@ -309,6 +310,11 @@ int main(int argc, char * argv[]) {
                 sizey = atoi(argv[i+1]);
                 i++;
             }
+        } else if (0 == strcmp(argv[i], "-a")) {
+            if (i + 1 < argc) {
+                n_mulmat_algotype = atoi(argv[i+1]);
+                i++;
+            }
         } else {
             show_usage();
             return 3;
@@ -325,6 +331,7 @@ int main(int argc, char * argv[]) {
     if (n_backend_type < HEXAGON_BACKEND_CDSP) {
         ggml_backend_hexagon_set_cfg(n_backend_type, HWACCEL_QNN);
     }
+    ggml_backend_hexagon_set_mulmat_algotype(n_mulmat_algotype);
 #endif
 
     srand(time(NULL));
@@ -457,7 +464,7 @@ int main(int argc, char * argv[]) {
     get_timestring(currenttime_string);
 
 #ifdef GGML_USE_HEXAGON
-    if (n_backend_type == HEXAGON_BACKEND_CDSP) {
+    if ((n_backend_type == HEXAGON_BACKEND_CDSP) && (n_ggml_op_type == GGML_OP_MUL_MAT)) {
         printf("[%s] duration of ut GGML_OP_%s with backend %s(algo type:%d): %ld milliseconds\n", currenttime_string, ggml_op_name((enum ggml_op)n_ggml_op_type), ggml_backend_hexagon_get_devname(n_backend_type), ggml_backend_hexagon_get_mulmat_algotype(), n_duration);
     } else {
         printf("[%s] duration of ut GGML_OP_%s with backend %s: %ld milliseconds\n", currenttime_string, ggml_op_name((enum ggml_op)n_ggml_op_type), ggml_backend_hexagon_get_devname(n_backend_type), n_duration);

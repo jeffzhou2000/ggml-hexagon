@@ -1,11 +1,11 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 # Copyright (c) 2024-2025 The KanTV authors
 #
 # 1. build llama.cpp + ggml-hexagon backend on Linux for Android phone equipped with Qualcomm Snapdragon mobile SoC
 #    this script will setup local dev envs automatically
 #
-# 2. verify prebuilt libggmldsp-skel.so on Android phone equipped with Qualcomm Snapdragon mobile SoC
+# 2. verify prebuilt libggmldsp-skel.so on Android phone equipped with Qualcomm Snapdragon mobile SoC(8Elite is recommended)
 #
 # 3. compare performance of QNN-CPU,QNN-GPU,QNN-NPU,Hexagon-cDSP,ggml on Android phone equipped with Qualcomm Snapdragon mobile SoC
 #
@@ -19,7 +19,7 @@ PROJECT_ROOT_PATH=${PROJECT_HOME_PATH}
 HOST_CPU_COUNTS=`cat /proc/cpuinfo | grep "processor" | wc | awk '{print int($1)}'`
 
 #running path on Android phone
-REMOTE_PATH=/data/local/tmp/
+REMOTE_PATH=/data/local/tmp
 
 #Android NDK can be found at:
 #https://developer.android.com/ndk/downloads
@@ -47,13 +47,13 @@ HEXAGON_SDK_PATH=/opt/qcom/Hexagon_SDK/6.2.0.1
 #customized/tailored Hexagon SDK from the offcial Hexagon SDK for simplify workflow
 HEXAGON_SDK_PATH=${PROJECT_ROOT_PATH}/prebuilts/Hexagon_SDK/6.2.0.1
 
-#running_params=" -mg 2 -ngl 99 -t 8 -fa 1 "
-#running_params=" -mg 2 -ngl 99 -t 8 "
+#running_params=" -ngl 99 -t 8 -n 256 --no-warmup -fa 1 "
 running_params=" -ngl 99 -t 8 -n 256 --no-warmup "
 
 #available prebuilt libs can be found at prebuilts/ggml-dsp
-#GGMLDSP_RELEASE_DATE=20250531
+GGMLDSP_RELEASE_DATE=20250531
 GGMLDSP_RELEASE_DATE=20250609
+GGMLDSP_RELEASE_DATE=20250625
 
 
 ######## part-2: contents in this part can be modified ########
@@ -94,6 +94,12 @@ GGUF_MODEL_NAME=/sdcard/qwen1_5-1_8b-chat-q4_0.gguf
 #HTP_ARCH_VERSION_a=V79
 
 #modify the following two lines to adapt to test phone
+#for simplify workflow, only support v75 and v79, or only support 8Gen3 and 8Elite
+#v79/8Elite is strongly recommended because:
+#1. sometimes the same dsp codes can running well as expected on Snapdragon 8Elite based phone
+#   but can't works as expected on other Snapdragon based phone(e.g. 8Gen3).
+#2. DSP clock rate on 8Gen3 is slower than DSP clock rate on 8Elite.
+#3. 8Elite support for LP-DDR5x memory, up to 5300 MHz; 8Gen3 support for LP-DDR5x memory, up to 4800 MHz.
 HTP_ARCH_VERSION=v79
 HTP_ARCH_VERSION_a=V79
 
@@ -331,32 +337,6 @@ function build_ggml_hexagon_debug()
 }
 
 
-#added on 05/31/2025, for purpose of non-tech factor
-function prepare_ggmlhexagon()
-{
-    adb push ./scripts/ggml-hexagon-for-binary-lib.cfg ${REMOTE_PATH}/ggml-hexagon.cfg
-    echo "adb push ${PROJECT_ROOT_PATH}/prebuilts/ggml-dsp/${GGMLDSP_RELEASE_DATE}/libggmlop-skel${HTP_ARCH_VERSION}.so ${REMOTE_PATH}/libggmlop-skel.so"
-case "$HTP_ARCH_VERSION" in
-    v69)
-        adb push ${PROJECT_ROOT_PATH}/prebuilts/ggml-dsp/${GGMLDSP_RELEASE_DATE}/libggmlop-skel${HTP_ARCH_VERSION}.so ${REMOTE_PATH}/libggmlop-skel.so
-    ;;
-    v73)
-        adb push ${PROJECT_ROOT_PATH}/prebuilts/ggml-dsp/${GGMLDSP_RELEASE_DATE}/libggmlop-skel${HTP_ARCH_VERSION}.so ${REMOTE_PATH}/libggmlop-skel.so
-    ;;
-    v75)
-        adb push ${PROJECT_ROOT_PATH}/prebuilts/ggml-dsp/${GGMLDSP_RELEASE_DATE}/libggmlop-skel${HTP_ARCH_VERSION}.so ${REMOTE_PATH}/libggmlop-skel.so
-    ;;
-    v79)
-        adb push ${PROJECT_ROOT_PATH}/prebuilts/ggml-dsp/${GGMLDSP_RELEASE_DATE}/libggmlop-skel${HTP_ARCH_VERSION}.so ${REMOTE_PATH}/libggmlop-skel.so
-    ;;
-    *)
-        show_usage
-        exit 1
-    ;;
-esac
-}
-
-
 function prepare_ggmldsp()
 {
     adb push ./scripts/ggml-hexagon-for-binary-lib.cfg ${REMOTE_PATH}/ggml-hexagon.cfg
@@ -432,7 +412,7 @@ function check_prebuilt_models()
 
     check_and_download_model qwen1_5-1_8b-chat-q4_0.gguf https://huggingface.co/Qwen/Qwen1.5-1.8B-Chat-GGUF/resolve/main/qwen1_5-1_8b-chat-q4_0.gguf
     #check_and_download_model MiniCPM4-0.5B-F32.gguf https://huggingface.co/zhouwg/kantv/resolve/main/MiniCPM4-0.5B-F32.gguf
-    check_and_download_model t5-277M-F32.gguf https://huggingface.co/zhouwg/kantv/resolve/main/t5-277M-F32.gguf
+    #check_and_download_model t5-277M-F32.gguf https://huggingface.co/zhouwg/kantv/resolve/main/t5-277M-F32.gguf
 
     set -e
 }
@@ -458,10 +438,6 @@ function prepare_run_on_phone()
     #for troubleshooting issues in upstream llama.cpp project
     adb shell ls -l ${REMOTE_PATH}/libggml-*.so
 
-    #for verify prebuilt binary library(built on 05/31/2025) on Hexagon cDSP
-    #not used since 06/2025 and would be removed in the future
-    #prepare_ggmlhexagon
-
     #for verify prebuilt binary library(after 06/2025) on Hexagon cDSP
     #comment this line when build library on Hexagon cDSP from the reference/self-develop source codes in this project
     prepare_ggmldsp
@@ -476,10 +452,10 @@ function run_llamacli()
 {
     prepare_run_on_phone llama-cli
 
-    echo "${REMOTE_PATH}/llama-cli ${running_params} -mg $qnnbackend -no-cnv -m ${TEST_MODEL_NAME} -p \"${PROMPT_STRING}\""
+    echo "${REMOTE_PATH}/llama-cli ${running_params} -mg ${hexagon_backend} -no-cnv -m ${TEST_MODEL_NAME} -p \"${PROMPT_STRING}\""
     adb shell "cd ${REMOTE_PATH} \
                && export LD_LIBRARY_PATH=${REMOTE_PATH} \
-               && ${REMOTE_PATH}/llama-cli ${running_params} -mg $qnnbackend -no-cnv -m ${TEST_MODEL_NAME} -p \"${PROMPT_STRING}\""
+               && ${REMOTE_PATH}/llama-cli ${running_params} -mg ${hexagon_backend} -no-cnv -m ${TEST_MODEL_NAME} -p \"${PROMPT_STRING}\""
 
 }
 
@@ -490,12 +466,12 @@ function run_llamabench()
 
     echo "adb shell \"cd ${REMOTE_PATH} \
                && export LD_LIBRARY_PATH=${REMOTE_PATH} \
-               && ${REMOTE_PATH}/llama-bench ${running_params} -mg $qnnbackend -m ${GGUF_MODEL_NAME}\""
-    echo "${REMOTE_PATH}/llama-bench ${running_params} -mg $qnnbackend -m ${GGUF_MODEL_NAME}"
+               && ${REMOTE_PATH}/llama-bench ${running_params} -mg ${hexagon_backend} -m ${GGUF_MODEL_NAME}\""
+    echo "${REMOTE_PATH}/llama-bench ${running_params} -mg ${hexagon_backend} -m ${GGUF_MODEL_NAME}"
 
     adb shell "cd ${REMOTE_PATH} \
                && export LD_LIBRARY_PATH=${REMOTE_PATH} \
-               && ${REMOTE_PATH}/llama-bench ${running_params} -mg $qnnbackend -m ${GGUF_MODEL_NAME}"
+               && ${REMOTE_PATH}/llama-bench ${running_params} -mg ${hexagon_backend} -m ${GGUF_MODEL_NAME}"
 
 }
 
@@ -504,10 +480,10 @@ function run_threadsafety()
 {
     prepare_run_on_phone test-thread-safety
 
-    echo "${REMOTE_PATH}/test-thread-safety -np 2 -mg $qnnbackend -m ${GGUF_MODEL_NAME} -p \"hello,world\" -n 256 -ngl 99 "
+    echo "${REMOTE_PATH}/test-thread-safety -np 2 -mg ${hexagon_backend} -m ${GGUF_MODEL_NAME} -p \"hello,world\" -n 256 -ngl 99 "
     adb shell "cd ${REMOTE_PATH} \
                && export LD_LIBRARY_PATH=${REMOTE_PATH} \
-               && ${REMOTE_PATH}/test-thread-safety -np 1 -mg $qnnbackend -m ${GGUF_MODEL_NAME} -p \"hello,world\" -n 256 -ngl 99 "
+               && ${REMOTE_PATH}/test-thread-safety -np 1 -mg ${hexagon_backend} -m ${GGUF_MODEL_NAME} -p \"hello,world\" -n 256 -ngl 99 "
 
 }
 
@@ -524,18 +500,41 @@ function run_test-ops()
 }
 
 
+function check_hexagon_backend
+{
+    if [[ ${hexagon_backend} != 0 ]] && [[ ${hexagon_backend} != 1 ]] && [[ ${hexagon_backend} != 2 ]] && [[ ${hexagon_backend} != 3 ]] && [[ ${hexagon_backend} != 4 ]] ; then
+        printf "invalid hexagon backend\n"
+        printf "valid hexagon backend: 0(QNN_CPU), 1(QNN_GPU), 2(QNN_NPU), 3(cDSP), 4(ggml)\n"
+        exit 1
+    fi
+}
+
+
+function check_mulmat_algotype
+{
+    printf "mulmat_algotype ${mulmat_algotype} \n"
+    if [[ ${mulmat_algotype} != 0 ]] && [[ ${mulmat_algotype} != 1 ]] && [[ ${mulmat_algotype} != 2 ]] && [[ ${mulmat_algotype} != 3 ]] && [[ ${mulmat_algotype} != 4 ]] && [[ ${mulmat_algotype} != 5 ]] && [[ ${mulmat_algotype} != 6 ]] && [[ ${mulmat_algotype} != 32 ]] && [[ ${mulmat_algotype} != 33 ]]; then
+        printf "invalid mulmat algotype\n"
+        printf "valid mulmat algotype: 0, 1, 2, 3, 4, 5, 6, 32, 33 \n"
+        exit 1
+    fi
+}
+
+
 function run_test-op()
 {
     prepare_run_on_phone test-backend-ops
 
+    check_mulmat_algotype
+
     echo "adb shell cd ${REMOTE_PATH} \
                && export LD_LIBRARY_PATH=${REMOTE_PATH} \
-               && ${REMOTE_PATH}/test-backend-ops test -o $opname "
+               && ${REMOTE_PATH}/test-backend-ops test -o $opname -a ${mulmat_algotype}"
 
     echo "\n"
     adb shell "cd ${REMOTE_PATH} \
                && export LD_LIBRARY_PATH=${REMOTE_PATH} \
-               && ${REMOTE_PATH}/test-backend-ops test -o $opname "
+               && ${REMOTE_PATH}/test-backend-ops test -o $opname -a ${mulmat_algotype}"
 
 }
 
@@ -544,9 +543,12 @@ function run_benchmark()
 {
     prepare_run_on_phone ggmlhexagon-benchmark
 
+    check_mulmat_algotype
+
+    echo "${REMOTE_PATH}/ggmlhexagon-benchmark -t ${opname} -b ${hexagon_backend} -m ${row} -n ${col} -a ${mulmat_algotype}"
     adb shell "cd ${REMOTE_PATH} \
                && export LD_LIBRARY_PATH=${REMOTE_PATH} \
-               && ${REMOTE_PATH}/ggmlhexagon-benchmark -t $opname -b $qnnbackend -m $row -n $col"
+               && ${REMOTE_PATH}/ggmlhexagon-benchmark -t ${opname} -b ${hexagon_backend} -m ${row} -n ${col} -a ${mulmat_algotype}"
 
 }
 
@@ -648,6 +650,10 @@ function show_usage()
     echo "  $0 run_threadsafety             0(QNN_CPU)/1(QNN_GPU)/2(QNN_NPU)/3(cdsp)/4(ggml)"
     echo "  $0 run_benchmark  ADD/MUL_MAT   0(QNN_CPU)/1(QNN_GPU)/2(QNN_NPU)/3(cdsp)/4(ggml)"
     echo "  $0 run_benchmark  ADD/MUL_MAT   0(QNN_CPU)/1(QNN_GPU)/2(QNN_NPU)/3(cdsp)/4(ggml) 256/512/1024/2048/4096 256/512/1024/2048/4096"
+    #verify performance of mulmat on cDSP
+    echo "  $0 run_benchmark  MUL_MAT       3(cdsp)   mulmat_algotype(0,1,2,3,4,5,6,32,33)  (verify performance of mulmat on cDSP)"
+    #verify accuracy    of mulmat on cDSP
+    echo "  $0 run_testop     MUL_MAT                 mulmat_algotype(0,1,2,3,4,5,6,32,33)  (verify accuracy    of mulmat on cDSP)"
 
     echo -e "\n\n\n"
 }
@@ -698,18 +704,22 @@ elif [ $# == 2 ]; then
 
     if [ "$1" == "run_testop" ]; then
         opname=$2
+        mulmat_algotype=0
         run_test-op
         exit 0
     elif [ "$1" == "run_llamacli" ]; then
-        qnnbackend=$2
+        hexagon_backend=$2
+        check_hexagon_backend
         run_llamacli
         exit 0
     elif [ "$1" == "run_llamabench" ]; then
-        qnnbackend=$2
+        hexagon_backend=$2
+        check_hexagon_backend
         run_llamabench
         exit 0
     elif [ "$1" == "run_threadsafety" ]; then
-        qnnbackend=$2
+        hexagon_backend=$2
+        check_hexagon_backend
         run_threadsafety
         exit 0
     else
@@ -717,19 +727,52 @@ elif [ $# == 2 ]; then
         exit 1
     fi
 elif [ $# == 3 ]; then
-    opname=$2
-    qnnbackend=$3
-    row=4096
-    col=4096
-    run_benchmark
-    exit 0
+    if [ "$1" == "run_benchmark" ]; then
+        opname=$2
+        hexagon_backend=$3
+        row=4096
+        col=4096
+        mulmat_algotype=0
+        check_hexagon_backend
+        run_benchmark
+        exit 0
+    elif [ "$1" == "run_testop" ]; then
+        opname=$2
+        mulmat_algotype=$3
+        run_test-op
+        exit 0
+    else
+        show_usage
+        exit 1
+    fi
+elif [ $# == 4 ]; then
+    if [ "$1" == "run_benchmark" ]; then
+        opname=MUL_MAT
+        #cDSP
+        hexagon_backend=3
+        row=4096
+        col=4096
+        mulmat_algotype=$4
+        run_benchmark
+        exit 0
+    else
+        show_usage
+        exit 1
+    fi
 elif [ $# == 5 ]; then
-    opname=$2
-    qnnbackend=$3
-    row=$4
-    col=$5
-    run_benchmark
-    exit 0
+    if [ "$1" == "run_benchmark" ]; then
+        opname=$2
+        hexagon_backend=$3
+        row=$4
+        col=$5
+        mulmat_algotype=0
+        check_hexagon_backend
+        run_benchmark
+        exit 0
+    else
+        show_usage
+        exit 1
+    fi
 else
     show_usage
     exit 1
