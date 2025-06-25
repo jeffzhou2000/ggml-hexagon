@@ -41,13 +41,17 @@ endif()
 set(CHECK_HTP_ARCH "WRONG")
 #ref: https://github.com/quic/ai-hub-apps/tree/main/tutorials/llm_on_genie
 #foreach (feat v68 v69 v73 v75 v79)
-foreach (feat v73 v75 v79)
+#foreach (feat v73 v75 v79)
+#for simplify workflow, only support v75 and v79, or only support 8Gen3 and 8Elite
+foreach (feat v75 v79)
     if (${feat} STREQUAL ${HTP_ARCH_VERSION})
         set(CHECK_HTP_ARCH "GOOD")
     endif()
 endforeach()
 if (${CHECK_HTP_ARCH} STREQUAL "WRONG")
-    message(FATAL_ERROR "ggml-hexagon backend only support htp arch v68,v69,v73,v75,v79")
+    #message(FATAL_ERROR "ggml-hexagon backend only support htp arch v68,v69,v73,v75,v79")
+    #for simplify workflow, only support v75 and v79, or only support 8Gen3 and 8Elite
+    message(FATAL_ERROR "ggml-hexagon backend only support htp arch v75,v79")
 endif()
 
 #check optimization flags
