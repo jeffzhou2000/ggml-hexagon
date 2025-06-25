@@ -145,7 +145,6 @@ static void ggml_compute_forward_mul_mat_one_chunk(const ggml_tensor *src0, cons
     }
 }
 
-//TODO: only support fp32 mulmat on cDSP
 static int ggmlop_dsp_mulmat_singlethread(remote_handle64 h, const ggml_tensor * src0, const ggml_tensor * src1, ggml_tensor * dst) {
     GGMLHEXAGON_LOG_DEBUG("enter %s", __func__ );
     ggmlhexagon_dump_tensor(src0, 0);
@@ -274,7 +273,6 @@ static int ggmlop_dsp_mulmat_singlethread(remote_handle64 h, const ggml_tensor *
     return 0;
 }
 
-//TODO:multithreading mulmat
 static int ggmlop_dsp_mulmat_multithread(remote_handle64 h, const struct dsptensor * src0, const struct dsptensor * src1, dsptensor * dst) {
     GGMLHEXAGON_LOG_DEBUG("enter %s", __func__ );
     GGMLHEXAGON_LOG_DEBUG("leave %s", __func__ );

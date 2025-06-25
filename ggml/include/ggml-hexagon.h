@@ -44,6 +44,8 @@ GGML_BACKEND_API void               ggml_backend_hexagon_set_cfg(int new_hexagon
 
 GGML_BACKEND_API int                ggml_backend_hexagon_get_mulmat_algotype(void);
 
+GGML_BACKEND_API void               ggml_backend_hexagon_set_mulmat_algotype(int new_mulmat_algotype);
+
 #ifdef __cplusplus
 }
 #endif
