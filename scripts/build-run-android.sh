@@ -654,6 +654,8 @@ function show_usage()
     echo "  $0 run_benchmark  MUL_MAT       3(cdsp)   mulmat_algotype(0,1,2,3,4,5,6,32,33)  (verify performance of mulmat on cDSP)"
     #verify accuracy    of mulmat on cDSP
     echo "  $0 run_testop     MUL_MAT                 mulmat_algotype(0,1,2,3,4,5,6,32,33)  (verify accuracy    of mulmat on cDSP)"
+    #verify accuracy    of add    on cDSP
+    echo "  $0 run_testop     ADD                                                           (verify accuracy    of add    on cDSP)"
 
     echo -e "\n\n\n"
 }
