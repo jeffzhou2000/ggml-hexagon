@@ -5463,22 +5463,26 @@ static std::vector<std::unique_ptr<test_case>> make_test_cases_eval() {
 
 #ifdef GGML_USE_HEXAGON
     //verify computation result of add on cDSP
-    //make whipser.cpp happy
     test_cases.emplace_back(new test_bin_bcast(ggml_add, GGML_TYPE_F32, {384, 1, 1, 1}, {1,   1, 1, 1}));
     test_cases.emplace_back(new test_bin_bcast(ggml_add, GGML_TYPE_F32, {1536, 1, 1, 1}, {1,   1, 1, 1}));
+    test_cases.emplace_back(new test_bin_bcast(ggml_add, GGML_TYPE_F32, {1024, 1024, 1, 1}, {1,   1, 1, 1}));
+    test_cases.emplace_back(new test_bin_bcast(ggml_add, GGML_TYPE_F32, {2048, 2048, 1, 1}, {1,   1, 1, 1}));
     test_cases.emplace_back(new test_bin_bcast(ggml_add, GGML_TYPE_F32, {2048, 1, 1, 1}, {1,   1, 1, 1}));
-    //verify computation result of fp32 4096x4096 add on cDSP
     test_cases.emplace_back(new test_bin_bcast(ggml_add, GGML_TYPE_F32, {4096, 4096, 1, 1}, {1,   1, 1, 1}));
     //verify computation result of mulmat on cDSP
     test_cases.emplace_back(new test_mul_mat(GGML_TYPE_F32,    GGML_TYPE_F32, 32, 14, 64, { 1,  1}, {1, 1}));
     test_cases.emplace_back(new test_mul_mat(GGML_TYPE_F32,    GGML_TYPE_F32, 256, 128, 256, { 1,  1}, {1, 1}));
     test_cases.emplace_back(new test_mul_mat(GGML_TYPE_F32,    GGML_TYPE_F32, 600, 300, 600, { 1,  1}, {1, 1}));
     test_cases.emplace_back(new test_mul_mat(GGML_TYPE_F32,    GGML_TYPE_F32, 900, 450, 900, { 1,  1}, {1, 1}));
+    test_cases.emplace_back(new test_mul_mat(GGML_TYPE_F32,    GGML_TYPE_F32, 512, 512, 1024, { 1,  1}, {1, 1}));
     test_cases.emplace_back(new test_mul_mat(GGML_TYPE_F32,    GGML_TYPE_F32, 1024, 512, 1024, { 1,  1}, {1, 1}));
+    test_cases.emplace_back(new test_mul_mat(GGML_TYPE_F32,    GGML_TYPE_F32, 1024, 1024, 1024, { 1,  1}, {1, 1}));
     test_cases.emplace_back(new test_mul_mat(GGML_TYPE_F32,    GGML_TYPE_F32, 2048, 1024, 2048, { 1,  1}, {1, 1}));
+    test_cases.emplace_back(new test_mul_mat(GGML_TYPE_F32,    GGML_TYPE_F32, 2048, 2048, 2048, { 1,  1}, {1, 1}));
     test_cases.emplace_back(new test_mul_mat(GGML_TYPE_F32,    GGML_TYPE_F32, 4096, 38, 4096, { 1,  1}, {1, 1}));
-    //test_cases.emplace_back(new test_mul_mat(GGML_TYPE_F32,    GGML_TYPE_F32, 4096, 2048, 4096, { 1,  1}, {1, 1}));
-    //test_cases.emplace_back(new test_mul_mat(GGML_TYPE_F32,    GGML_TYPE_F32, 4096, 4096, 4096, { 1,  1}, {1, 1}));
+    test_cases.emplace_back(new test_mul_mat(GGML_TYPE_F32,    GGML_TYPE_F32, 4096, 1024, 4096, { 1,  1}, {1, 1}));
+    test_cases.emplace_back(new test_mul_mat(GGML_TYPE_F32,    GGML_TYPE_F32, 4096, 2048, 4096, { 1,  1}, {1, 1}));
+    test_cases.emplace_back(new test_mul_mat(GGML_TYPE_F32,    GGML_TYPE_F32, 4096, 4096, 4096, { 1,  1}, {1, 1}));
 #endif
 
     return test_cases;
