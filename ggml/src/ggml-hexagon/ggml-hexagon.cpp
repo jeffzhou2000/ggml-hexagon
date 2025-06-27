@@ -154,6 +154,7 @@ struct ggml_backend_hexagon_context;
 
 #if !defined (_WINDOWS)
 #pragma weak remote_system_request
+#pragma weak remote_session_control
 #endif
 
 #define CHECK_QNN_API(error, result)                                            \
@@ -5186,6 +5187,41 @@ bail:
     return;
 }
 
+/**
+ * set FastRPC thread priority (default unchanged at 192)
+ * priority values range from 1 to 255, with smaller values representing higher priorities
+ * Unprivileged clients: 64 through 254 (cDSP only)
+ * Privileged clients:   1  through 254
+ *
+ * ref:file:///opt/qcom/Hexagon_SDK/6.2.0.1/docs/software/system_integration.html#priority-levels
+ */
+static int ggmlhexagon_set_priority(int domain, int priority) {
+    int err = 0;
+
+    if (priority < 1) {
+        priority = 1;
+    }
+    if (priority > 255) {
+        priority = 255;
+    }
+
+    if (remote_session_control) {
+        struct remote_rpc_thread_params data;
+        data.domain     = domain;
+        data.prio       = priority;
+        data.stack_size = -1;
+        err = remote_session_control(FASTRPC_THREAD_PARAMS, (void *)&data, sizeof(data));
+        if (err != AEE_SUCCESS) {
+            GGMLHEXAGON_LOG_WARN("remote_session_control failed with 0x%x when setting thread priority\n", err);
+        } else {
+            GGMLHEXAGON_LOG_VERBOSE("thread priority set to %d\n", priority);
+        }
+    } else {
+        GGMLHEXAGON_LOG_WARN("cannot set thread priority\n");
+    }
+    return err;
+}
+
 static bool ggmlhexagon_is_status_notification_supported(int domain) {
     int hexagon_error = AEE_SUCCESS;
 
@@ -5640,7 +5676,7 @@ static int ggmlhexagon_init_dsp(ggml_backend_hexagon_context * ctx) {
             hexagon_error = remote_session_control(DSPRPC_CONTROL_UNSIGNED_MODULE, (void *)&data, sizeof(data));
             GGMLHEXAGON_LOG_DEBUG("remote_session_control returned %d for configuring unsigned PD success", hexagon_error);
             if (AEE_SUCCESS != hexagon_error) {
-                GGMLHEXAGON_LOG_DEBUG("error 0x%x: remote_session_control failed", hexagon_error);
+                GGMLHEXAGON_LOG_WARN("error 0x%x: remote_session_control failed", hexagon_error);
             }
         } else {
             GGMLHEXAGON_LOG_DEBUG("unsigned PD not supported on this device");
@@ -5657,6 +5693,7 @@ static int ggmlhexagon_init_dsp(ggml_backend_hexagon_context * ctx) {
         GGMLHEXAGON_LOG_WARN("error 0x%x: failed to compute on domain %d", hexagon_error, domain_id);
         goto bail;
     }
+    ggmlhexagon_set_priority(domain_id, 160);
 
     ggmlop_domain_uri_len   = strlen(ggmlop_URI) + MAX_DOMAIN_NAMELEN;
     ggmlop_domain_uri       = (char *)malloc(ggmlop_domain_uri_len);
