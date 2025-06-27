@@ -54,6 +54,7 @@ running_params=" -ngl 99 -t 8 -n 256 --no-warmup "
 GGMLDSP_RELEASE_DATE=20250531
 GGMLDSP_RELEASE_DATE=20250609
 GGMLDSP_RELEASE_DATE=20250625
+GGMLDSP_RELEASE_DATE=20250627
 
 
 ######## part-2: contents in this part can be modified ########
