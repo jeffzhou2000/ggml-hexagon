@@ -66,6 +66,8 @@ PROMPT_STRING="introduce the movie Once Upon a Time in America briefly.\n"
 #for llama-cli, 1.1 GiB, will be downloaded automatically via this script
 #TEST_MODEL_NAME=/sdcard/t5-277M-F32.gguf
 TEST_MODEL_NAME=/sdcard/qwen1_5-1_8b-chat-q4_0.gguf
+#for llama-cli, 4.5 GiB, can be downloadded automatically via this script
+TEST_MODEL_NAME=/sdcard/gemma-3n-E2B-it-Q8_0.gguf
 #self-defined LLM models
 #TEST_MODEL_NAME=/sdcard/Qwen3-8B-Q8_0.gguf
 #TEST_MODEL_NAME=/sdcard/Qwen3-4B-Q8_0.gguf
@@ -413,6 +415,7 @@ function check_prebuilt_models()
     check_and_download_model qwen1_5-1_8b-chat-q4_0.gguf https://huggingface.co/Qwen/Qwen1.5-1.8B-Chat-GGUF/resolve/main/qwen1_5-1_8b-chat-q4_0.gguf
     #check_and_download_model MiniCPM4-0.5B-F32.gguf https://huggingface.co/zhouwg/kantv/resolve/main/MiniCPM4-0.5B-F32.gguf
     #check_and_download_model t5-277M-F32.gguf https://huggingface.co/zhouwg/kantv/resolve/main/t5-277M-F32.gguf
+    check_and_download_model gemma-3n-E2B-it-Q8_0.gguf https://huggingface.co/ggml-org/gemma-3n-E2B-it-GGUF/resolve/main/gemma-3n-E2B-it-Q8_0.gguf
 
     set -e
 }
