@@ -668,28 +668,14 @@ static constexpr const qnn_op_caps ggmlqnn_k_op_caps[] = {
         {false, GGML_OP_CROSS_ENTROPY_LOSS, 0, nullptr},
         {false, GGML_OP_CROSS_ENTROPY_LOSS_BACK, 0, nullptr},
         {false, GGML_OP_OPT_STEP_ADAMW, 0, nullptr},
-        {false, static_cast<ggml_op>(GGML_UNARY_OP_ABS), 0, nullptr},
-        {false, static_cast<ggml_op>(GGML_UNARY_OP_SGN), 0, nullptr},
-        {false, static_cast<ggml_op>(GGML_UNARY_OP_NEG), 0, nullptr},
-        {false, static_cast<ggml_op>(GGML_UNARY_OP_STEP), 0, nullptr},
-        {false, static_cast<ggml_op>(GGML_UNARY_OP_TANH), 0, nullptr},
-        {false, static_cast<ggml_op>(GGML_UNARY_OP_ELU), 0, nullptr},
-        {false, static_cast<ggml_op>(GGML_UNARY_OP_RELU), 0, nullptr},
-        {false, static_cast<ggml_op>(GGML_UNARY_OP_SIGMOID), 0, nullptr},
-        {false, static_cast<ggml_op>(GGML_UNARY_OP_GELU), 0, nullptr},
-        {false, static_cast<ggml_op>(GGML_UNARY_OP_GELU_ERF), 0, nullptr},
-        {false, static_cast<ggml_op>(GGML_UNARY_OP_GELU_QUICK), 0, nullptr},
-        {false, static_cast<ggml_op>(GGML_UNARY_OP_SILU), 0, nullptr},
-        {false, static_cast<ggml_op>(GGML_UNARY_OP_HARDSWISH), 0, nullptr},
-        {false, static_cast<ggml_op>(GGML_UNARY_OP_HARDSIGMOID), 0, nullptr},
-        {false, static_cast<ggml_op>(GGML_UNARY_OP_EXP), 0, nullptr}
+        {false, GGML_OP_GLU, 0, nullptr},
 };
 
 static_assert(ggmlqnn_k_op_caps[GGML_OP_NONE].supported,    "GGML_OP_NONE is not true");
 static_assert(ggmlqnn_k_op_caps[GGML_OP_ADD].supported,     "GGML_OP_ADD is not true");
 static_assert(ggmlqnn_k_op_caps[GGML_OP_MUL].supported,     "GGML_OP_MUL is not true");
 static_assert(ggmlqnn_k_op_caps[GGML_OP_MUL_MAT].supported, "GGML_OP_MUL_MAT is not true");
-static_assert(std::size(ggmlqnn_k_op_caps) == (static_cast<size_t>(GGML_OP_COUNT) + static_cast<size_t>(GGML_UNARY_OP_COUNT)),
+static_assert(std::size(ggmlqnn_k_op_caps) == (static_cast<size_t>(GGML_OP_COUNT)),
               "pls check ggmlqnn_k_op_caps and ensure is corresponding to latest ggml.h");
 
 //supported ggml op by HWACCEL_CDSP
@@ -778,28 +764,14 @@ static constexpr const hexagon_op_caps ggmlhexagon_k_op_caps[] = {
         {false, GGML_OP_CROSS_ENTROPY_LOSS, 0, nullptr, nullptr},
         {false, GGML_OP_CROSS_ENTROPY_LOSS_BACK, 0, nullptr, nullptr},
         {false, GGML_OP_OPT_STEP_ADAMW, 0, nullptr, nullptr},
-        {false, static_cast<ggml_op>(GGML_UNARY_OP_ABS), 0, nullptr, nullptr},
-        {false, static_cast<ggml_op>(GGML_UNARY_OP_SGN), 0, nullptr, nullptr},
-        {false, static_cast<ggml_op>(GGML_UNARY_OP_NEG), 0, nullptr, nullptr},
-        {false, static_cast<ggml_op>(GGML_UNARY_OP_STEP), 0, nullptr, nullptr},
-        {false, static_cast<ggml_op>(GGML_UNARY_OP_TANH), 0, nullptr, nullptr},
-        {false, static_cast<ggml_op>(GGML_UNARY_OP_ELU), 0, nullptr, nullptr},
-        {false, static_cast<ggml_op>(GGML_UNARY_OP_RELU), 0, nullptr, nullptr},
-        {false, static_cast<ggml_op>(GGML_UNARY_OP_SIGMOID), 0, nullptr, nullptr},
-        {false, static_cast<ggml_op>(GGML_UNARY_OP_GELU), 0, nullptr, nullptr},
-        {false, static_cast<ggml_op>(GGML_UNARY_OP_GELU_ERF), 0, nullptr, nullptr},
-        {false, static_cast<ggml_op>(GGML_UNARY_OP_GELU_QUICK), 0, nullptr, nullptr},
-        {false, static_cast<ggml_op>(GGML_UNARY_OP_SILU), 0, nullptr, nullptr},
-        {false, static_cast<ggml_op>(GGML_UNARY_OP_HARDSWISH), 0, nullptr, nullptr},
-        {false, static_cast<ggml_op>(GGML_UNARY_OP_HARDSIGMOID), 0, nullptr, nullptr},
-        {false, static_cast<ggml_op>(GGML_UNARY_OP_EXP), 0, nullptr, nullptr}
+        {false, GGML_OP_GLU, 0, nullptr, nullptr},
 };
 
 static_assert(ggmlhexagon_k_op_caps[GGML_OP_NONE].supported,     "GGML_OP_NONE is not true");
 static_assert(ggmlhexagon_k_op_caps[GGML_OP_ADD].supported,      "GGML_OP_ADD is not true");
 static_assert(ggmlhexagon_k_op_caps[GGML_OP_MUL_MAT].supported,  "GGML_OP_MUL_MAT is not true");
 static_assert(ggmlhexagon_k_op_caps[GGML_OP_SOFT_MAX].supported, "GGML_OP_SOFT_MAX is not true");
-static_assert(std::size(ggmlhexagon_k_op_caps) == (static_cast<size_t>(GGML_OP_COUNT) + static_cast<size_t>(GGML_UNARY_OP_COUNT)),
+static_assert(std::size(ggmlhexagon_k_op_caps) == (static_cast<size_t>(GGML_OP_COUNT)),
               "pls check ggmlhexagon_k_op_caps and ensure is corresponding to latest ggml.h");
 
 static int32_t g_qnntensor_idx = 0; //ensure every QNN tensor name is unique
@@ -1858,10 +1830,6 @@ static void ggmlhexagon_append_tensor_dimensions(const ggml_tensor * tensor, std
 }
 
 static size_t ggmlhexagon_get_op_index(const ggml_tensor * tensor) {
-    if (tensor->op == GGML_OP_UNARY) {
-        return static_cast<size_t>(GGML_OP_COUNT) + static_cast<size_t>(ggml_get_unary_op(tensor));
-    }
-
     return tensor->op;
 }
 
