@@ -63,17 +63,17 @@ PROMPT_STRING="every day of your life, it is important to take the time to smell
 PROMPT_STRING="introduce the movie Once Upon a Time in America briefly.\n"
 
 #for llama-cli, 20.4 MiB in models/t5-very-small-random-F32.gguf
-#TEST_MODEL_NAME=/sdcard/t5-very-small-random-F32.gguf
+TEST_MODEL_NAME=/sdcard/t5-very-small-random-F32.gguf
+TEST_MODEL_NAME=/sdcard/t5-277M-F32.gguf
 #for llama-cli, 1.1 GiB, will be downloaded automatically via this script
-#TEST_MODEL_NAME=/sdcard/t5-277M-F32.gguf
 TEST_MODEL_NAME=/sdcard/qwen1_5-1_8b-chat-q4_0.gguf
 #for llama-cli, 4.5 GiB, can be downloadded automatically via this script
 TEST_MODEL_NAME=/sdcard/gemma-3n-E2B-it-Q8_0.gguf
+
 #self-defined LLM models
 #TEST_MODEL_NAME=/sdcard/Qwen3-8B-Q8_0.gguf
 #TEST_MODEL_NAME=/sdcard/Qwen3-4B-Q8_0.gguf
 #TEST_MODEL_NAME=/sdcard/gemma-3-4b-it-Q8_0.gguf
-
 
 #for llama-bench, 1.12 GiB, will be downloadded automatically via this script
 GGUF_MODEL_NAME=/sdcard/qwen1_5-1_8b-chat-q4_0.gguf
@@ -492,14 +492,13 @@ function run_threadsafety()
 }
 
 
-
 function run_test-ops()
 {
-    prepare_run_on_phone test-backend-ops
+    prepare_run_on_phone ggmlhexagon-testops
 
     adb shell "cd ${REMOTE_PATH} \
                && export LD_LIBRARY_PATH=${REMOTE_PATH} \
-               && ${REMOTE_PATH}/test-backend-ops test"
+               && ${REMOTE_PATH}/ggmlhexagon-testops test"
 
 }
 
@@ -527,18 +526,36 @@ function check_mulmat_algotype
 
 function run_test-op()
 {
-    prepare_run_on_phone test-backend-ops
+    prepare_run_on_phone ggmlhexagon-testops
 
     check_mulmat_algotype
 
     echo "adb shell cd ${REMOTE_PATH} \
                && export LD_LIBRARY_PATH=${REMOTE_PATH} \
-               && ${REMOTE_PATH}/test-backend-ops test -o $opname -a ${mulmat_algotype}"
+               && ${REMOTE_PATH}/ggmlhexagon-testops test -o ${opname} -a ${mulmat_algotype}"
 
     echo "\n"
     adb shell "cd ${REMOTE_PATH} \
                && export LD_LIBRARY_PATH=${REMOTE_PATH} \
-               && ${REMOTE_PATH}/test-backend-ops test -o $opname -a ${mulmat_algotype}"
+               && ${REMOTE_PATH}/ggmlhexagon-testops test -o ${opname} -a ${mulmat_algotype}"
+
+}
+
+
+function run_perf-op()
+{
+    prepare_run_on_phone ggmlhexagon-testops
+
+    check_mulmat_algotype
+
+    echo "adb shell cd ${REMOTE_PATH} \
+               && export LD_LIBRARY_PATH=${REMOTE_PATH} \
+               && ${REMOTE_PATH}/ggmlhexagon-testops perf -o ${opname} -a ${mulmat_algotype} -i ${hexagon_backend}"
+
+    echo "\n"
+    adb shell "cd ${REMOTE_PATH} \
+               && export LD_LIBRARY_PATH=${REMOTE_PATH} \
+               && ${REMOTE_PATH}/ggmlhexagon-testops perf -o ${opname} -a ${mulmat_algotype} -i ${hexagon_backend}"
 
 }
 
@@ -649,16 +666,16 @@ function show_usage()
     echo "  $0 updateqnnlib"
     echo "  $0 run_testops"
     echo "  $0 run_testop     ADD/MUL_MAT"
+    echo "  $0 run_perfop     ADD/MUL_MAT"
     echo "  $0 run_llamacli                 0(QNN_CPU)/1(QNN_GPU)/2(QNN_NPU)/3(cdsp)/4(ggml)"
     echo "  $0 run_llamabench               0(QNN_CPU)/1(QNN_GPU)/2(QNN_NPU)/3(cdsp)/4(ggml)"
     echo "  $0 run_threadsafety             0(QNN_CPU)/1(QNN_GPU)/2(QNN_NPU)/3(cdsp)/4(ggml)"
+    echo "  $0 run_perfop     MUL_MAT       0(QNN_CPU)/1(QNN_GPU)/2(QNN_NPU)/3(cdsp)/4(ggml)"
     echo "  $0 run_benchmark  ADD/MUL_MAT   0(QNN_CPU)/1(QNN_GPU)/2(QNN_NPU)/3(cdsp)/4(ggml)"
     echo "  $0 run_benchmark  ADD/MUL_MAT   0(QNN_CPU)/1(QNN_GPU)/2(QNN_NPU)/3(cdsp)/4(ggml) 256/512/1024/2048/4096 256/512/1024/2048/4096"
-    #verify performance of mulmat on cDSP
     echo "  $0 run_benchmark  MUL_MAT       3(cdsp)   mulmat_algotype(0,1,2,3,4,5,6,32,33)  (verify performance of mulmat on cDSP)"
-    #verify accuracy    of mulmat on cDSP
+    echo "  $0 run_perfop     MUL_MAT       3(cdsp)   mulmat_algotype(0,1,2,3,4,5,6,32,33)  (verify performance of mulmat on cDSP)"
     echo "  $0 run_testop     MUL_MAT                 mulmat_algotype(0,1,2,3,4,5,6,32,33)  (verify accuracy    of mulmat on cDSP)"
-    #verify accuracy    of add    on cDSP
     echo "  $0 run_testop     ADD                                                           (verify accuracy    of add    on cDSP)"
 
     echo -e "\n\n\n"
@@ -713,6 +730,13 @@ elif [ $# == 2 ]; then
         mulmat_algotype=0
         run_test-op
         exit 0
+    elif [ "$1" == "run_perfop" ]; then
+        opname=$2
+        mulmat_algotype=0
+        hexagon_backend=3
+        check_hexagon_backend
+        run_perf-op
+        exit 0
     elif [ "$1" == "run_llamacli" ]; then
         hexagon_backend=$2
         check_hexagon_backend
@@ -745,7 +769,14 @@ elif [ $# == 3 ]; then
     elif [ "$1" == "run_testop" ]; then
         opname=$2
         mulmat_algotype=$3
+        check_mulmat_algotype
         run_test-op
+        exit 0
+    elif [ "$1" == "run_perfop" ]; then
+        opname=MUL_MAT
+        mulmat_algotype=0
+        hexagon_backend=$3
+        run_perf-op
         exit 0
     else
         show_usage
@@ -759,7 +790,15 @@ elif [ $# == 4 ]; then
         row=4096
         col=4096
         mulmat_algotype=$4
+        check_mulmat_algotype
         run_benchmark
+        exit 0
+    elif [ "$1" == "run_perfop" ]; then
+        opname=MUL_MAT
+        hexagon_backend=3
+        mulmat_algotype=$4
+        check_mulmat_algotype
+        run_perf-op
         exit 0
     else
         show_usage
