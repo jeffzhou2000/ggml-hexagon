@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Copyright (c) 2024-2025 The KanTV authors
+# Copyright (c) zhouwg(https://github.com/zhouwg)
 #
 # 1. build llama.cpp + ggml-hexagon backend on Linux for Android phone equipped with Qualcomm Snapdragon mobile SoC
 #    this script will setup local dev envs automatically
