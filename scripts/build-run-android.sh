@@ -729,12 +729,12 @@ elif [ $# == 2 ]; then
 
     if [ "$1" == "run_testop" ]; then
         opname=$2
-        mulmat_algotype=0
+        mulmat_algotype=32
         run_test-op
         exit 0
     elif [ "$1" == "run_perfop" ]; then
         opname=$2
-        mulmat_algotype=0
+        mulmat_algotype=32
         hexagon_backend=3
         check_hexagon_backend
         run_perf-op
@@ -764,7 +764,7 @@ elif [ $# == 3 ]; then
         hexagon_backend=$3
         row=4096
         col=4096
-        mulmat_algotype=0
+        mulmat_algotype=32
         check_hexagon_backend
         run_benchmark
         exit 0
@@ -776,7 +776,7 @@ elif [ $# == 3 ]; then
         exit 0
     elif [ "$1" == "run_perfop" ]; then
         opname=MUL_MAT
-        mulmat_algotype=0
+        mulmat_algotype=32
         hexagon_backend=$3
         run_perf-op
         exit 0
@@ -812,7 +812,7 @@ elif [ $# == 5 ]; then
         hexagon_backend=$3
         row=$4
         col=$5
-        mulmat_algotype=0
+        mulmat_algotype=32
         check_hexagon_backend
         run_benchmark
         exit 0
