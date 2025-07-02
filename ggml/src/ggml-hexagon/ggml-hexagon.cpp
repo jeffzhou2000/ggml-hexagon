@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) zhouwg(https://github.com/zhouwg)
  * Copyright (c) 2024-2025 The ggml authors
  *
  * Qualcomm QNN SDK and reference tech guides could be found at:
