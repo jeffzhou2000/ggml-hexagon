@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2024-2025 The KanTV authors
+ * Copyright (c) zhouwg(https://github.com/zhouwg)
+ * Copyright (c) 2024-2025 The ggml authors
  *
  * implementation of self-made Android command line tool for benchmark of ggml-hexagon backend
  *
