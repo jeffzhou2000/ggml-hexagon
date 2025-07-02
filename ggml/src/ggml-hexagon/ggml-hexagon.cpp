@@ -2150,10 +2150,10 @@ static void ggmlhexagon_print_running_timestamp(ggml_backend_hexagon_context * c
         GGMLHEXAGON_LOG_INFO("offload quantize GGML_OP_MUL_MAT: %s", g_hexagon_appcfg.enable_q_mulmat ? "YES" : "NO");
         GGMLHEXAGON_LOG_INFO("using rpc ion memory pool:        %s", g_hexagon_appcfg.enable_rpc_ion_mempool ? "YES" : "NO");
         GGMLHEXAGON_LOG_INFO("thread_counts with HWACCEL_CDSP:  %d", g_hexagon_appcfg.thread_counts);
-        GGMLHEXAGON_LOG_INFO("mulmat algo type on cDSP       :  %d", g_hexagon_appcfg.mulmat_algotype);
+        GGMLHEXAGON_LOG_INFO("mulmat algo type on cDSP:         %d", g_hexagon_appcfg.mulmat_algotype);
         ggmlhexagon_probe_dspinfo(ctx);
     } else {
-        GGMLHEXAGON_LOG_INFO("thread_counts with HWACCEL_QNN: %d", g_hexagon_appcfg.hvx_threads);
+        GGMLHEXAGON_LOG_INFO("thread_counts with HWACCEL_QNN:   %d", g_hexagon_appcfg.hvx_threads);
         GGMLHEXAGON_LOG_INFO("offload quantize GGML_OP_MUL_MAT: %s", g_hexagon_appcfg.enable_q_mulmat ? "YES" : "NO");
     }
     GGMLHEXAGON_LOG_INFO("running timestamp:%s", timestamp);
@@ -4918,7 +4918,20 @@ static int ggmlhexagon_get_domains_info(const char * domain_type, int * num_doma
     int hexagon_err = AEE_SUCCESS;
     int ss_info     = 0;
     void * buffer   = nullptr;
-    ss_info = strcmp(domain_type, "NSP")? HPASS: NSP;
+#if 0
+typedef enum {
+    /** Flag to be used to query list of all available domains */
+    ALL_DOMAINS,
+    NSP,
+    LPASS,
+    SDSP,
+    MODEM,
+    HPASS,
+} fastrpc_domain_type;
+#endif
+    //ss_info = strcmp(domain_type, "NSP") ? HPASS: NSP;
+    //forward compatible with new SDK
+    ss_info = (0 == memcmp(domain_type, "NSP", 3)) ? 1 : 5;
     system_req_payload req;
     memset(&req, 0, sizeof(system_req_payload));
     req.id = FASTRPC_GET_DOMAINS;

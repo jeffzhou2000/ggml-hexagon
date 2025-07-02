@@ -49,8 +49,8 @@ HEXAGON_SDK_PATH=/opt/qcom/Hexagon_SDK/6.2.0.1
 #customized/tailored Hexagon SDK from the offcial Hexagon SDK for simplify workflow
 HEXAGON_SDK_PATH=${PROJECT_ROOT_PATH}/prebuilts/Hexagon_SDK/6.2.0.1
 
-#running_params=" -ngl 99 -t 8 -n 256 --no-warmup -fa 1 "
-running_params=" -ngl 99 -t 8 -n 256 --no-warmup "
+#running_params=" -ngl 99 -t 4 -n 256 --no-warmup -fa 1 "
+running_params=" -ngl 99 -t 4 -n 256 --no-warmup "
 
 #available prebuilt libs can be found at prebuilts/ggml-dsp
 GGMLDSP_RELEASE_DATE=20250531
