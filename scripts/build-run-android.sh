@@ -534,12 +534,12 @@ function run_test-op()
 
     echo "adb shell cd ${REMOTE_PATH} \
                && export LD_LIBRARY_PATH=${REMOTE_PATH} \
-               && ${REMOTE_PATH}/ggmlhexagon-testops test -o ${opname} -a ${mulmat_algotype}"
+               && ${REMOTE_PATH}/ggmlhexagon-testops test -o ${opname} -a ${mulmat_algotype} -i ${hexagon_backend}"
 
     echo "\n"
     adb shell "cd ${REMOTE_PATH} \
                && export LD_LIBRARY_PATH=${REMOTE_PATH} \
-               && ${REMOTE_PATH}/ggmlhexagon-testops test -o ${opname} -a ${mulmat_algotype}"
+               && ${REMOTE_PATH}/ggmlhexagon-testops test -o ${opname} -a ${mulmat_algotype} -i ${hexagon_backend}"
 
 }
 
@@ -673,11 +673,12 @@ function show_usage()
     echo "  $0 run_llamabench               0(QNN_CPU)/1(QNN_GPU)/2(QNN_NPU)/3(cdsp)/4(ggml)"
     echo "  $0 run_threadsafety             0(QNN_CPU)/1(QNN_GPU)/2(QNN_NPU)/3(cdsp)/4(ggml)"
     echo "  $0 run_perfop     MUL_MAT       0(QNN_CPU)/1(QNN_GPU)/2(QNN_NPU)/3(cdsp)/4(ggml)"
+    echo "  $0 run_testop     MUL_MAT       0(QNN_CPU)/1(QNN_GPU)/2(QNN_NPU)/3(cdsp)/4(ggml)"
     echo "  $0 run_benchmark  ADD/MUL_MAT   0(QNN_CPU)/1(QNN_GPU)/2(QNN_NPU)/3(cdsp)/4(ggml)"
     echo "  $0 run_benchmark  ADD/MUL_MAT   0(QNN_CPU)/1(QNN_GPU)/2(QNN_NPU)/3(cdsp)/4(ggml) 256/512/1024/2048/4096 256/512/1024/2048/4096"
     echo "  $0 run_benchmark  MUL_MAT       3(cdsp)   mulmat_algotype(0,1,2,3,4,5,6,32,33)  (verify performance of mulmat on cDSP)"
     echo "  $0 run_perfop     MUL_MAT       3(cdsp)   mulmat_algotype(0,1,2,3,4,5,6,32,33)  (verify performance of mulmat on cDSP)"
-    echo "  $0 run_testop     MUL_MAT                 mulmat_algotype(0,1,2,3,4,5,6,32,33)  (verify accuracy    of mulmat on cDSP)"
+    echo "  $0 run_testop     MUL_MAT       3(cdsp)   mulmat_algotype(0,1,2,3,4,5,6,32,33)  (verify accuracy    of mulmat on cDSP)"
     echo "  $0 run_testop     ADD                                                           (verify accuracy    of add    on cDSP)"
 
     echo -e "\n\n\n"
@@ -769,9 +770,10 @@ elif [ $# == 3 ]; then
         run_benchmark
         exit 0
     elif [ "$1" == "run_testop" ]; then
-        opname=$2
-        mulmat_algotype=$3
-        check_mulmat_algotype
+        opname=MUL_MAT
+        mulmat_algotype=32
+        hexagon_backend=$3
+        check_hexagon_backend
         run_test-op
         exit 0
     elif [ "$1" == "run_perfop" ]; then
@@ -801,6 +803,13 @@ elif [ $# == 4 ]; then
         mulmat_algotype=$4
         check_mulmat_algotype
         run_perf-op
+        exit 0
+    elif [ "$1" == "run_testop" ]; then
+        opname=MUL_MAT
+        hexagon_backend=3
+        mulmat_algotype=$4
+        check_mulmat_algotype
+        run_test-op
         exit 0
     else
         show_usage
