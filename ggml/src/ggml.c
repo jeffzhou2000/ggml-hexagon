@@ -330,7 +330,7 @@ void * ggml_aligned_malloc(size_t size) {
   #endif
     if (result != 0) {
         // Handle allocation failure
-        const char *error_desc = "unknown allocation error";
+        const char * error_desc = "unknown allocation error";
         switch (result) {
             case EINVAL:
                 error_desc = "invalid alignment value";
@@ -1174,13 +1174,13 @@ void ggml_print_objects(const struct ggml_context * ctx) {
 int64_t ggml_nelements(const struct ggml_tensor * tensor) {
     static_assert(GGML_MAX_DIMS == 4, "GGML_MAX_DIMS is not 4 - update this function");
 
-    return tensor->ne[0]*tensor->ne[1]*tensor->ne[2]*tensor->ne[3];
+    return tensor->ne[0] * tensor->ne[1] * tensor->ne[2] * tensor->ne[3];
 }
 
 int64_t ggml_nrows(const struct ggml_tensor * tensor) {
     static_assert(GGML_MAX_DIMS == 4, "GGML_MAX_DIMS is not 4 - update this function");
 
-    return tensor->ne[1]*tensor->ne[2]*tensor->ne[3];
+    return tensor->ne[1] * tensor->ne[2] * tensor->ne[3];
 }
 
 size_t ggml_nbytes(const struct ggml_tensor * tensor) {
@@ -1194,14 +1194,14 @@ size_t ggml_nbytes(const struct ggml_tensor * tensor) {
     const size_t blck_size = ggml_blck_size(tensor->type);
     if (blck_size == 1) {
         nbytes = ggml_type_size(tensor->type);
-        for (int i = 0; i < GGML_MAX_DIMS; ++i) {
-            nbytes += (tensor->ne[i] - 1)*tensor->nb[i];
+        for (size_t i = 0; i < GGML_MAX_DIMS; ++i) {
+            nbytes += (tensor->ne[i] - 1) * tensor->nb[i];
         }
     }
     else {
-        nbytes = tensor->ne[0]*tensor->nb[0]/blck_size;
-        for (int i = 1; i < GGML_MAX_DIMS; ++i) {
-            nbytes += (tensor->ne[i] - 1)*tensor->nb[i];
+        nbytes = tensor->ne[0] * tensor->nb[0] / blck_size;
+        for (size_t i = 1; i < GGML_MAX_DIMS; ++i) {
+            nbytes += (tensor->ne[i] - 1) * tensor->nb[i];
         }
     }
 
@@ -1222,11 +1222,11 @@ size_t ggml_type_size(enum ggml_type type) {
 
 size_t ggml_row_size(enum ggml_type type, int64_t ne) {
     assert(ne % ggml_blck_size(type) == 0);
-    return ggml_type_size(type)*ne/ggml_blck_size(type);
+    return ggml_type_size(type) * ne / ggml_blck_size(type);
 }
 
 double ggml_type_sizef(enum ggml_type type) {
-    return ((double)(type_traits[type].type_size))/type_traits[type].blck_size;
+    return ((double)(type_traits[type].type_size)) / type_traits[type].blck_size;
 }
 
 const char * ggml_type_name(enum ggml_type type) {
@@ -1304,19 +1304,19 @@ enum ggml_type ggml_ftype_to_ggml_type(enum ggml_ftype ftype) {
     enum ggml_type wtype = GGML_TYPE_COUNT;
 
     switch (ftype) {
-        case GGML_FTYPE_ALL_F32:              wtype = GGML_TYPE_F32;   break;
-        case GGML_FTYPE_MOSTLY_F16:           wtype = GGML_TYPE_F16;   break;
-        case GGML_FTYPE_MOSTLY_BF16:          wtype = GGML_TYPE_BF16;  break;
-        case GGML_FTYPE_MOSTLY_Q4_0:          wtype = GGML_TYPE_Q4_0;  break;
-        case GGML_FTYPE_MOSTLY_Q4_1:          wtype = GGML_TYPE_Q4_1;  break;
-        case GGML_FTYPE_MOSTLY_Q5_0:          wtype = GGML_TYPE_Q5_0;  break;
-        case GGML_FTYPE_MOSTLY_Q5_1:          wtype = GGML_TYPE_Q5_1;  break;
-        case GGML_FTYPE_MOSTLY_Q8_0:          wtype = GGML_TYPE_Q8_0;  break;
-        case GGML_FTYPE_MOSTLY_Q2_K:          wtype = GGML_TYPE_Q2_K;  break;
-        case GGML_FTYPE_MOSTLY_Q3_K:          wtype = GGML_TYPE_Q3_K;  break;
-        case GGML_FTYPE_MOSTLY_Q4_K:          wtype = GGML_TYPE_Q4_K;  break;
-        case GGML_FTYPE_MOSTLY_Q5_K:          wtype = GGML_TYPE_Q5_K;  break;
-        case GGML_FTYPE_MOSTLY_Q6_K:          wtype = GGML_TYPE_Q6_K;  break;
+        case GGML_FTYPE_ALL_F32:              wtype = GGML_TYPE_F32;      break;
+        case GGML_FTYPE_MOSTLY_F16:           wtype = GGML_TYPE_F16;      break;
+        case GGML_FTYPE_MOSTLY_BF16:          wtype = GGML_TYPE_BF16;     break;
+        case GGML_FTYPE_MOSTLY_Q4_0:          wtype = GGML_TYPE_Q4_0;     break;
+        case GGML_FTYPE_MOSTLY_Q4_1:          wtype = GGML_TYPE_Q4_1;     break;
+        case GGML_FTYPE_MOSTLY_Q5_0:          wtype = GGML_TYPE_Q5_0;     break;
+        case GGML_FTYPE_MOSTLY_Q5_1:          wtype = GGML_TYPE_Q5_1;     break;
+        case GGML_FTYPE_MOSTLY_Q8_0:          wtype = GGML_TYPE_Q8_0;     break;
+        case GGML_FTYPE_MOSTLY_Q2_K:          wtype = GGML_TYPE_Q2_K;     break;
+        case GGML_FTYPE_MOSTLY_Q3_K:          wtype = GGML_TYPE_Q3_K;     break;
+        case GGML_FTYPE_MOSTLY_Q4_K:          wtype = GGML_TYPE_Q4_K;     break;
+        case GGML_FTYPE_MOSTLY_Q5_K:          wtype = GGML_TYPE_Q5_K;     break;
+        case GGML_FTYPE_MOSTLY_Q6_K:          wtype = GGML_TYPE_Q6_K;     break;
         case GGML_FTYPE_MOSTLY_IQ2_XXS:       wtype = GGML_TYPE_IQ2_XXS;  break;
         case GGML_FTYPE_MOSTLY_IQ2_XS:        wtype = GGML_TYPE_IQ2_XS;   break;
         case GGML_FTYPE_MOSTLY_IQ3_XXS:       wtype = GGML_TYPE_IQ3_XXS;  break;
@@ -1326,8 +1326,8 @@ enum ggml_type ggml_ftype_to_ggml_type(enum ggml_ftype ftype) {
         case GGML_FTYPE_MOSTLY_IQ4_XS:        wtype = GGML_TYPE_IQ4_XS;   break;
         case GGML_FTYPE_MOSTLY_IQ3_S:         wtype = GGML_TYPE_IQ3_S;    break;
         case GGML_FTYPE_MOSTLY_IQ2_S:         wtype = GGML_TYPE_IQ2_S;    break;
-        case GGML_FTYPE_UNKNOWN:              wtype = GGML_TYPE_COUNT; break;
-        case GGML_FTYPE_MOSTLY_Q4_1_SOME_F16: wtype = GGML_TYPE_COUNT; break;
+        case GGML_FTYPE_UNKNOWN:              wtype = GGML_TYPE_COUNT;    break;
+        case GGML_FTYPE_MOSTLY_Q4_1_SOME_F16: wtype = GGML_TYPE_COUNT;    break;
     }
 
     GGML_ASSERT(wtype != GGML_TYPE_COUNT);
@@ -1348,7 +1348,7 @@ static bool ggml_is_contiguous_n(const struct ggml_tensor * tensor, int n) {
     if (tensor->ne[0] != ggml_blck_size(tensor->type) && tensor->nb[0] != next_nb) {
         return false;
     }
-    next_nb *= tensor->ne[0]/ggml_blck_size(tensor->type);
+    next_nb *= tensor->ne[0] / ggml_blck_size(tensor->type);
     for (int i = 1; i < GGML_MAX_DIMS; i++) {
         if (tensor->ne[i] != 1) {
             if (i > n) {
@@ -1358,7 +1358,7 @@ static bool ggml_is_contiguous_n(const struct ggml_tensor * tensor, int n) {
                 next_nb *= tensor->ne[i];
             } else {
                 // this dimension does not need to be contiguous
-                next_nb = tensor->ne[i]*tensor->nb[i];
+                next_nb = tensor->ne[i] * tensor->nb[i];
             }
         }
     }
@@ -1382,7 +1382,7 @@ bool ggml_is_contiguous_2(const struct ggml_tensor * tensor) {
 }
 
 bool ggml_is_contiguously_allocated(const struct ggml_tensor * tensor) {
-    return ggml_nbytes(tensor) == ggml_nelements(tensor) * ggml_type_size(tensor->type)/ggml_blck_size(tensor->type);
+    return ggml_nbytes(tensor) == ggml_nelements(tensor) * ggml_type_size(tensor->type) / ggml_blck_size(tensor->type);
 }
 
 bool ggml_is_permuted(const struct ggml_tensor * tensor) {
@@ -1409,8 +1409,8 @@ static inline bool ggml_is_padded_1d(const struct ggml_tensor * tensor) {
 
     return
         tensor->nb[0] == ggml_type_size(tensor->type) &&
-        tensor->nb[2] == tensor->nb[1]*tensor->ne[1] &&
-        tensor->nb[3] == tensor->nb[2]*tensor->ne[2];
+        tensor->nb[2] == tensor->nb[1] * tensor->ne[1] &&
+        tensor->nb[3] == tensor->nb[2] * tensor->ne[2];
 }
 
 bool ggml_is_empty(const struct ggml_tensor * tensor) {
@@ -1675,9 +1675,9 @@ static struct ggml_tensor * ggml_new_tensor_impl(
     }
 
     result->nb[0] = ggml_type_size(type);
-    result->nb[1] = result->nb[0]*(result->ne[0]/ggml_blck_size(type));
-    for (int i = 2; i < GGML_MAX_DIMS; i++) {
-        result->nb[i] = result->nb[i - 1]*result->ne[i - 1];
+    result->nb[1] = result->nb[0] * (result->ne[0] / ggml_blck_size(type));
+    for (size_t i = 2; i < GGML_MAX_DIMS; i++) {
+        result->nb[i] = result->nb[i - 1] * result->ne[i - 1];
     }
 
     ctx->n_objects++;
@@ -1745,22 +1745,22 @@ void ggml_unravel_index(const struct ggml_tensor * tensor, int64_t i, int64_t * 
     const int64_t ne1 = tensor->ne[1];
     const int64_t ne0 = tensor->ne[0];
 
-    const int64_t i3_ = (i/(ne2*ne1*ne0));
-    const int64_t i2_ = (i - i3_*ne2*ne1*ne0)/(ne1*ne0);
-    const int64_t i1_ = (i - i3_*ne2*ne1*ne0 - i2_*ne1*ne0)/ne0;
-    const int64_t i0_ = (i - i3_*ne2*ne1*ne0 - i2_*ne1*ne0 - i1_*ne0);
+    const int64_t i3_ = (i / (ne2 * ne1 * ne0));
+    const int64_t i2_ = (i - i3_ * ne2 * ne1 * ne0) / (ne1 * ne0);
+    const int64_t i1_ = (i - i3_ * ne2 * ne1 * ne0 - i2_ * ne1 * ne0) / ne0;
+    const int64_t i0_ = (i - i3_ * ne2 * ne1 * ne0 - i2_ * ne1 * ne0 - i1_ * ne0);
 
     if (i0) {
-        * i0 = i0_;
+        *i0 = i0_;
     }
     if (i1) {
-        * i1 = i1_;
+        *i1 = i1_;
     }
     if (i2) {
-        * i2 = i2_;
+        *i2 = i2_;
     }
     if (i3) {
-        * i3 = i3_;
+        *i3 = i3_;
     }
 }
 
@@ -1810,7 +1810,7 @@ struct ggml_tensor * ggml_view_tensor(
     struct ggml_tensor * result = ggml_new_tensor_impl(ctx, src->type, GGML_MAX_DIMS, src->ne, src, 0);
     ggml_format_name(result, "%s (view)", src->name);
 
-    for (int i = 0; i < GGML_MAX_DIMS; i++) {
+    for (size_t i = 0; i < GGML_MAX_DIMS; i++) {
         result->nb[i] = src->nb[i];
     }
 
@@ -2290,7 +2290,7 @@ struct ggml_tensor * ggml_sum_rows(
         struct ggml_context * ctx,
         struct ggml_tensor  * a) {
     int64_t ne[GGML_MAX_DIMS] = { 1 };
-    for (int i = 1; i < GGML_MAX_DIMS; ++i) {
+    for (size_t i = 1; i < GGML_MAX_DIMS; ++i) {
         ne[i] = a->ne[i];
     }
 
@@ -2678,7 +2678,7 @@ static struct ggml_tensor * ggml_glu_impl(
         GGML_ASSERT(a->type == b->type);
     }
 
-    int64_t ne[GGML_MAX_DIMS] = { a->ne[0] / 2 }; for (int i = 1; i < GGML_MAX_DIMS; i++) ne[i] = a->ne[i];
+    int64_t ne[GGML_MAX_DIMS] = { a->ne[0] / 2 }; for (size_t i = 1; i < GGML_MAX_DIMS; i++) ne[i] = a->ne[i];
     struct ggml_tensor * result = ggml_new_tensor_impl(ctx, a->type, GGML_MAX_DIMS, b ? a->ne : ne, NULL, 0);
 
     ggml_set_op_params_i32(result, 0, (int32_t) op);
@@ -2963,9 +2963,9 @@ struct ggml_tensor * ggml_l2_norm_inplace(
 static inline bool ggml_can_mul_mat(const struct ggml_tensor * t0, const struct ggml_tensor * t1) {
     static_assert(GGML_MAX_DIMS == 4, "GGML_MAX_DIMS is not 4 - update this function");
 
-    return (t0->ne[0]           == t1->ne[0])  &&
-           (t1->ne[2]%t0->ne[2] == 0)          && // verify t0 is broadcastable
-           (t1->ne[3]%t0->ne[3] == 0);
+    return (t0->ne[0]             == t1->ne[0])  &&
+           (t1->ne[2] % t0->ne[2] == 0)          && // verify t0 is broadcastable
+           (t1->ne[3] % t0->ne[3] == 0);
 }
 
 struct ggml_tensor * ggml_mul_mat(
@@ -3040,9 +3040,9 @@ struct ggml_tensor * ggml_mul_mat_id(
 static inline bool ggml_can_out_prod(const struct ggml_tensor * t0, const struct ggml_tensor * t1) {
     static_assert(GGML_MAX_DIMS == 4, "GGML_MAX_DIMS is not 4 - update this function");
 
-    return (t0->ne[1] == t1->ne[1])   &&
-           (t1->ne[2]%t0->ne[2] == 0) && // verify t0 is broadcastable
-           (t1->ne[3]%t0->ne[3] == 0);
+    return (t0->ne[1] == t1->ne[1])     &&
+           (t1->ne[2] % t0->ne[2] == 0) && // verify t0 is broadcastable
+           (t1->ne[3] % t0->ne[3] == 0);
 }
 
 struct ggml_tensor * ggml_out_prod(
@@ -3720,8 +3720,8 @@ static struct ggml_tensor * ggml_soft_max_impl(
         GGML_ASSERT(ggml_is_contiguous(mask));
         GGML_ASSERT(mask->ne[0] == a->ne[0]);
         GGML_ASSERT(mask->ne[1] >= a->ne[1]);
-        GGML_ASSERT(a->ne[2]%mask->ne[2] == 0);
-        GGML_ASSERT(a->ne[3]%mask->ne[3] == 0);
+        GGML_ASSERT(a->ne[2] % mask->ne[2] == 0);
+        GGML_ASSERT(a->ne[3] % mask->ne[3] == 0);
     }
 
     if (max_bias > 0.0f) {
@@ -4418,7 +4418,7 @@ struct ggml_tensor * ggml_conv_transpose_2d_p0(
         a->ne[2], b->ne[3],
     };
 
-    struct ggml_tensor* result = ggml_new_tensor(ctx, GGML_TYPE_F32, 4, ne);
+    struct ggml_tensor * result = ggml_new_tensor(ctx, GGML_TYPE_F32, 4, ne);
 
     ggml_set_op_params_i32(result, 0, stride);
 
@@ -5043,8 +5043,8 @@ static struct ggml_tensor * ggml_add_rel_pos_impl(
     GGML_ASSERT(ph->type == GGML_TYPE_F32);
     GGML_ASSERT(pw->type == GGML_TYPE_F32);
     GGML_ASSERT(pw->ne[3] == a->ne[2]);
-    GGML_ASSERT(pw->ne[0]*pw->ne[0] == a->ne[0]);
-    GGML_ASSERT(pw->ne[1]*pw->ne[2] == a->ne[1]);
+    GGML_ASSERT(pw->ne[0] * pw->ne[0] == a->ne[0]);
+    GGML_ASSERT(pw->ne[1] * pw->ne[2] == a->ne[1]);
 
     struct ggml_tensor * result = inplace ? ggml_view_tensor(ctx, a) : ggml_dup_tensor(ctx, a);
     ggml_set_op_params_i32(result, 0, inplace ? 1 : 0);
@@ -5544,7 +5544,7 @@ size_t ggml_hash_size(size_t min_sz) {
     size_t l = 0;
     size_t r = n_primes;
     while (l < r) {
-        size_t m = (l + r)/2;
+        size_t m = (l + r) / 2;
         if (primes[m] < min_sz) {
             l = m + 1;
         } else {
@@ -6138,7 +6138,7 @@ static size_t ggml_visit_parents(struct ggml_cgraph * cgraph, struct ggml_tensor
         return node_hash_pos;
     }
 
-    for (int i = 0; i < GGML_MAX_SRC; ++i) {
+    for (size_t i = 0; i < GGML_MAX_SRC; ++i) {
         const int k =
             (cgraph->order == GGML_CGRAPH_EVAL_ORDER_LEFT_TO_RIGHT) ? i :
             (cgraph->order == GGML_CGRAPH_EVAL_ORDER_RIGHT_TO_LEFT) ? (GGML_MAX_SRC-1-i) :
@@ -6260,7 +6260,7 @@ void ggml_build_backward_expand(
             default:
                 break;
         }
-        for (int j = 0; j < GGML_MAX_SRC; ++j) {
+        for (size_t j = 0; j < GGML_MAX_SRC; ++j) {
             if (!node->src[j] || ignore_src[j] || !grads_needed[ggml_hash_find(&cgraph->visited_hash_set, node->src[j])]) {
                 continue;
             }
