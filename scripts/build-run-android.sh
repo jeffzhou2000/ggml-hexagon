@@ -64,20 +64,27 @@ GGMLDSP_RELEASE_DATE=20250627
 PROMPT_STRING="every day of your life, it is important to take the time to smell the roses — to appreciate the experiences that lead to happiness. This is part of being truly happy.Happiness is a state of mind. It starts with accepting where you are, knowing where you are going and planning to enjoy every moment along the way. You know how to be happy, and feel that you have enough time or money or love or whatever you need to achieve your goals. And just feeling that you have enough of everything means that you do indeed have enough.You have to choose to be happy, and focus upon being happy, in order to be happy. If you instead focus upon knowing that you will be happy if you achieve something, you will never be happy, as you have not learned to smell the roses. The irony is that when you are happy, you are inevitably more productive, and far more likely to achieve what everything-seekers are seeking. you will never be happy, as you have not learned to smell the roses. The irony is that when you are happy, you are inevitably more productive, and far more likely to achieve what everything-seekers are seeking."
 PROMPT_STRING="introduce the movie Once Upon a Time in America briefly.\n"
 
-#for llama-cli, 20.4 MiB in models/t5-very-small-random-F32.gguf
+#following two customized models only for self-test
+#20.4 MiB in models/t5-very-small-random-F32.gguf
 TEST_MODEL_NAME=/sdcard/t5-very-small-random-F32.gguf
+#1.0 GiB, can be downloadded via this script in function check_prebuilt_models()
 TEST_MODEL_NAME=/sdcard/t5-277M-F32.gguf
-#for llama-cli, 1.1 GiB, will be downloaded automatically via this script
+
+#for llama-cli, 1.6 GiB, can be downloadded via this script in function check_prebuilt_models()
+TEST_MODEL_NAME=/sdcard/MiniCPM4-0.5B-F32.gguf
+#for llama-cli, 1.1 GiB, will be downloaded automatically via this script when running this script at the first time
 TEST_MODEL_NAME=/sdcard/qwen1_5-1_8b-chat-q4_0.gguf
-#for llama-cli, 4.5 GiB, can be downloadded automatically via this script
+#for llama-cli, 4.5 GiB, will be downloadded automatically via this script when running this script at the first time
 TEST_MODEL_NAME=/sdcard/gemma-3n-E2B-it-Q8_0.gguf
 
-#self-defined LLM models
+#other LLM models for llama-cli
 #TEST_MODEL_NAME=/sdcard/Qwen3-8B-Q8_0.gguf
 #TEST_MODEL_NAME=/sdcard/Qwen3-4B-Q8_0.gguf
 #TEST_MODEL_NAME=/sdcard/gemma-3-4b-it-Q8_0.gguf
 
-#for llama-bench, 1.12 GiB, will be downloadded automatically via this script
+#for llama-bench, 4.5 GiB, will be downloadded automatically via this script when running this script at the first time
+GGUF_MODEL_NAME=/sdcard/gemma-3n-E2B-it-Q8_0.gguf
+#for llama-bench, 1.12 GiB, will be downloadded automatically via this script when running this script at the first time
 GGUF_MODEL_NAME=/sdcard/qwen1_5-1_8b-chat-q4_0.gguf
 
 #ref: https://github.com/quic/ai-hub-apps/tree/main/tutorials/llm_on_genie
