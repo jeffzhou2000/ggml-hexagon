@@ -9,6 +9,7 @@
 #
 # 3. compare performance of QNN-CPU,QNN-GPU,QNN-NPU,Hexagon-cDSP,ggml on Android phone equipped with Qualcomm Snapdragon mobile SoC
 #
+#
 set -e
 
 ######## part-1: don't modify contents in this part ########
