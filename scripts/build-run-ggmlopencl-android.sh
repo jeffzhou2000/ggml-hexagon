@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 #
+# Copyright (c) Qualcomm(https://www.qualcomm.com/developer/blog/2024/11/introducing-new-opn-cl-gpu-backend-llama-cpp-for-qualcomm-adreno-gpu)
 # Copyright (c) rmatif(https://github.com/rmatif, core-author)
 # Copyright (c) zhouwg(https://github.com/zhouwg, co-author)
 #
