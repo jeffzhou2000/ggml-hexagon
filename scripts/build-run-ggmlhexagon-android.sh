@@ -156,6 +156,16 @@ function check_commands_in_host()
 }
 
 
+function check_android_phone()
+{
+    adb shell ls /bin/ls
+    if [ ! $? -eq 0 ]; then
+        printf "pls check Android phone is connected properly\n"
+        exit 1
+    fi
+}
+
+
 function check_and_download_hexagon_sdk()
 {
     is_hexagon_llvm_exist=1
@@ -257,8 +267,8 @@ function check_and_download_ndk()
 
 function build_arm64
 {
-    cmake -H. -B./out/android -DCMAKE_BUILD_TYPE=Release -DGGML_OPENMP=OFF -DCMAKE_TOOLCHAIN_FILE=${ANDROID_NDK}/build/cmake/android.toolchain.cmake -DANDROID_ABI=arm64-v8a -DANDROID_PLATFORM=latest -DCMAKE_C_FLAGS=-march=armv8.7-a -DGGML_HEXAGON=ON -DLLAMA_CURL=OFF -DQNN_SDK_PATH=${QNN_SDK_PATH} -DHEXAGON_SDK_PATH=${HEXAGON_SDK_PATH} -DHTP_ARCH_VERSION=${HTP_ARCH_VERSION}
-    cd out/android
+    cmake -H. -B./out/ggmlhexagon-android -DCMAKE_BUILD_TYPE=Release -DGGML_OPENMP=OFF -DCMAKE_TOOLCHAIN_FILE=${ANDROID_NDK}/build/cmake/android.toolchain.cmake -DANDROID_ABI=arm64-v8a -DANDROID_PLATFORM=latest -DCMAKE_C_FLAGS=-march=armv8.7-a -DGGML_HEXAGON=ON -DLLAMA_CURL=OFF -DQNN_SDK_PATH=${QNN_SDK_PATH} -DHEXAGON_SDK_PATH=${HEXAGON_SDK_PATH} -DHTP_ARCH_VERSION=${HTP_ARCH_VERSION}
+    cd out/ggmlhexagon-android
     make -j${HOST_CPU_COUNTS}
     show_pwd
 
@@ -268,8 +278,8 @@ function build_arm64
 
 function build_arm64_debug
 {
-    cmake -H. -B./out/android -DCMAKE_BUILD_TYPE=Debug -DGGML_OPENMP=OFF -DCMAKE_TOOLCHAIN_FILE=${ANDROID_NDK}/build/cmake/android.toolchain.cmake -DANDROID_ABI=arm64-v8a -DANDROID_PLATFORM=latest -DCMAKE_C_FLAGS=-march=armv8.7-a -DGGML_HEXAGON=ON -DLLAMA_CURL=OFF -DQNN_SDK_PATH=${QNN_SDK_PATH} -DHEXAGON_SDK_PATH=${HEXAGON_SDK_PATH} -DHTP_ARCH_VERSION=${HTP_ARCH_VERSION}
-    cd out/android
+    cmake -H. -B./out/ggmlhexagon-android -DCMAKE_BUILD_TYPE=Debug -DGGML_OPENMP=OFF -DCMAKE_TOOLCHAIN_FILE=${ANDROID_NDK}/build/cmake/android.toolchain.cmake -DANDROID_ABI=arm64-v8a -DANDROID_PLATFORM=latest -DCMAKE_C_FLAGS=-march=armv8.7-a -DGGML_HEXAGON=ON -DLLAMA_CURL=OFF -DQNN_SDK_PATH=${QNN_SDK_PATH} -DHEXAGON_SDK_PATH=${HEXAGON_SDK_PATH} -DHTP_ARCH_VERSION=${HTP_ARCH_VERSION}
+    cd out/ggmlhexagon-android
     make -j${HOST_CPU_COUNTS}
     show_pwd
 
@@ -279,9 +289,9 @@ function build_arm64_debug
 
 function remove_temp_dir()
 {
-    if [ -d out/android ]; then
-        echo "remove out/android directory in `pwd`"
-        rm -rf out/android
+    if [ -d out/ggmlhexagon-android ]; then
+        echo "remove out/ggmlhexagon-android directory in `pwd`"
+        rm -rf out/ggmlhexagon-android
     fi
 }
 
@@ -444,10 +454,10 @@ function prepare_run_on_phone()
 
     check_prebuilt_models
 
-    if [ -f ./out/android/bin/libggml-cpu.so ]; then
-        adb push ./out/android/bin/*.so ${REMOTE_PATH}/
+    if [ -f ./out/ggmlhexagon-android/bin/libggml-cpu.so ]; then
+        adb push ./out/ggmlhexagon-android/bin/*.so ${REMOTE_PATH}/
     fi
-    adb push ./out/android/bin/${program} ${REMOTE_PATH}/
+    adb push ./out/ggmlhexagon-android/bin/${program} ${REMOTE_PATH}/
 
     #for troubleshooting issues in upstream llama.cpp project
     adb shell ls -l ${REMOTE_PATH}/libggml-*.so
@@ -698,6 +708,7 @@ function show_usage()
 show_pwd
 
 check_commands_in_host
+check_android_phone
 check_and_download_ndk
 check_and_download_qnn_sdk
 check_and_download_hexagon_sdk
