@@ -750,6 +750,7 @@ elif [ $# == 2 ]; then
     if [ "$1" == "run_testop" ]; then
         opname=$2
         mulmat_algotype=32
+        hexagon_backend=3
         run_test-op
         exit 0
     elif [ "$1" == "run_perfop" ]; then
