@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
-#  Copyright (c) zhouwg(https://github.com/zhouwg)
 #  Copyright (c) 2024-2025 The ggml authors
+#  Copyright (c) zhouwg(https://github.com/zhouwg, co-author)
 #
 # build llama.cpp + ggml-vulkan backend on Linux for Android phone
 # this script will setup local dev envs automatically
