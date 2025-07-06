@@ -44,11 +44,15 @@ running_params=" -ngl 99 -t 4 -n 256 --no-warmup "
 TEST_MODEL_NAME=/sdcard/qwen1_5-1_8b-chat-q4_0.gguf
 #for llama-cli, 4.5 GiB, will be downloadded automatically via this script when running this script at the first time
 TEST_MODEL_NAME=/sdcard/gemma-3n-E2B-it-Q8_0.gguf
+#https://huggingface.co/kolosal/llama-3.2-1b/blob/main/Llama-3.2-1B-Instruct-f16.gguf
+TEST_MODEL_NAME=/sdcard/Llama-3.2-1B-Instruct-f16.gguf
 
 #for llama-bench, 4.5 GiB, will be downloadded automatically via this script when running this script at the first time
 GGUF_MODEL_NAME=/sdcard/gemma-3n-E2B-it-Q8_0.gguf
 #for llama-bench, 1.12 GiB, will be downloadded automatically via this script when running this script at the first time
 GGUF_MODEL_NAME=/sdcard/qwen1_5-1_8b-chat-q4_0.gguf
+#https://huggingface.co/kolosal/llama-3.2-1b/blob/main/Llama-3.2-1B-Instruct-f16.gguf
+GGUF_MODEL_NAME=/sdcard/Llama-3.2-1B-Instruct-f16.gguf
 
 ######## part-3: utilities and functions ########
 
