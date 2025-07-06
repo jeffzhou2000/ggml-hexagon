@@ -1,10 +1,9 @@
 #!/usr/bin/env bash
 #
-# Copyright (c) Qualcomm(https://www.qualcomm.com/developer/blog/2024/11/introducing-new-opn-cl-gpu-backend-llama-cpp-for-qualcomm-adreno-gpu, original-author)
-# Copyright (c) rmatif(https://github.com/rmatif, core-author)
-# Copyright (c) zhouwg(https://github.com/zhouwg, co-author)
+#  Copyright (c) zhouwg(https://github.com/zhouwg)
+#  Copyright (c) 2024-2025 The ggml authors
 #
-# build llama.cpp + ggml-opencl backend on Linux for Android phone
+# build llama.cpp + ggml-vulkan backend on Linux for Android phone
 # this script will setup local dev envs automatically
 #
 set -e
@@ -27,15 +26,11 @@ ANDROID_NDK_NAME=android-ndk-${ANDROID_NDK_VERSION}
 ANDROID_NDK_FULLNAME=${ANDROID_NDK_NAME}-linux.zip
 ANDROID_NDK=${PROJECT_ROOT_PATH}/prebuilts/${ANDROID_NDK_NAME}
 
-# --- Define NDK paths based on the absolute SDK path ---
-NDK_TOOLCHAIN_SYSROOT_INCLUDE_PATH="${ANDROID_NDK}/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/include"
-NDK_TOOLCHAIN_SYSROOT_ARM64_LIB_PATH="${ANDROID_NDK}/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/aarch64-linux-android"
-
-#OpenCL Headers can be found at:
-#https://https://github.com/KhronosGroup/OpenCL-Headers
-OPENCL_SDK_URL=https://github.com/KhronosGroup/OpenCL-Headers
-OPENCL_SDK_PATH=${PROJECT_ROOT_PATH}/prebuilts/OpenCL_SDK
-OPENCL_HEADERS_PATH=${OPENCL_SDK_PATH}/OpenCL-Headers
+#Vulkan-Headers can be found at:
+#https://github.com/KhronosGroup/Vulkan-Headers
+VULKAN_SDK_URL=https://github.com/KhronosGroup/Vulkan-Headers
+VULKAN_SDK_PATH=${PROJECT_ROOT_PATH}/prebuilts/Vulkan_SDK
+VULKAN_HEADERS_PATH=${VULKAN_SDK_PATH}/Vulkan-Headers
 
 #running_params=" -ngl 99 -t 4 -n 256 --no-warmup -fa 1 "
 running_params=" -ngl 99 -t 4 -n 256 --no-warmup "
@@ -56,7 +51,7 @@ GGUF_MODEL_NAME=/sdcard/qwen1_5-1_8b-chat-q4_0.gguf
 function dump_vars()
 {
     echo -e "ANDROID_NDK:          ${ANDROID_NDK}"
-    echo -e "OPENCL_SDK_PATH:      ${OPENCL_SDK_PATH}"
+    echo -e "VULKAN_SDK_PATH:      ${VULKAN_SDK_PATH}"
 }
 
 
@@ -86,7 +81,6 @@ function check_commands_in_host()
 {
     check_command_in_host wget
     check_command_in_host git
-    check_command_in_host ninja
 }
 
 
@@ -100,65 +94,34 @@ function check_android_phone()
 }
 
 
-function check_and_download_opencl_sdk()
+function check_and_download_vulkan_sdk()
 {
-    is_opencl_sdk_exist=1
+    is_vulkan_sdk_exist=1
 
-    if [ ! -d ${OPENCL_SDK_PATH} ]; then
-        echo -e "OPENCL_SDK_PATH ${OPENCL_SDK_PATH} not exist, download it from ${OPENCL_SDK_URL}...\n"
-        is_opencl_sdk_exist=0
-    fi
-    if [ ! -f ${NDK_TOOLCHAIN_SYSROOT_ARM64_LIB_PATH}/libOpenCL.so ]; then
-        echo -e "${NDK_TOOLCHAIN_SYSROOT_ARM64_LIB_PATH}/libOpenCL.so not exist...\n"
-        is_opencl_sdk_exist=0
+    if [ ! -d ${VULKAN_SDK_PATH} ]; then
+        echo -e "VULKAN_SDK_PATH ${VULKAN_SDK_PATH} not exist, download it from ${VULKAN_SDK_URL}...\n"
+        is_vulkan_sdk_exist=0
     fi
 
-    if [ ${is_opencl_sdk_exist} -eq 0 ]; then
-        mkdir -p ${OPENCL_SDK_PATH}
-        cd ${OPENCL_SDK_PATH}
+    if [ ${is_vulkan_sdk_exist} -eq 0 ]; then
+        mkdir -p ${VULKAN_SDK_PATH}
+        cd ${VULKAN_SDK_PATH}
 
-        if [ ! -d OpenCL-Headers ]; then
-            echo "Cloning OpenCL-Headers..."
-            git clone https://github.com/KhronosGroup/OpenCL-Headers
+        if [ ! -d Vulkan-Headers ]; then
+            echo "Cloning Vulkan-Headers..."
+            git clone https://github.com/KhronosGroup/Vulkan-Headers
             if [ $? -ne 0 ]; then
-                printf "failed to download OpenCL-Headers to %s \n" "${OPENCL_SDK_PATH}"
+                printf "failed to download Vulkan-Headers to %s \n" "${VULKAN_SDK_PATH}"
                 exit 1
             fi
         fi
-        cd ${PROJECT_ROOT_PATH}/prebuilts/OpenCL_SDK/OpenCL-Headers
-        printf "Copying OpenCL Headers to Android NDK sysroot include: ${NDK_TOOLCHAIN_SYSROOT_INCLUDE_PATH}"
-        mkdir -p ${NDK_TOOLCHAIN_SYSROOT_INCLUDE_PATH}
-        /bin/cp -r -fv CL ${NDK_TOOLCHAIN_SYSROOT_INCLUDE_PATH}
 
-        cd ${PROJECT_ROOT_PATH}/prebuilts/OpenCL_SDK
-        if [ ! -d OpenCL-ICD-Loader ]; then
-            echo "Cloning OpenCL-ICD-Loader..."
-            git clone https://github.com/KhronosGroup/OpenCL-ICD-Loader
-            if [ $? -ne 0 ]; then
-                printf "failed to download OpenCL-ICD-Loader to %s \n" "${OPENCL_SDK_PATH}"
-                exit 1
-            fi
-        fi
-        cd ${PROJECT_ROOT_PATH}/prebuilts/OpenCL_SDK/OpenCL-ICD-Loader
-        mkdir -p build
-        cd build
-        cmake .. -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=${ANDROID_NDK}/build/cmake/android.toolchain.cmake -DANDROID_ABI=arm64-v8a -DANDROID_PLATFORM=latest -DANDROID_STL=c++_shared -DOPENCL_ICD_LOADER_HEADERS_DIR=${NDK_TOOLCHAIN_SYSROOT_INCLUDE_PATH}
-        echo "Building OpenCL-ICD-Loader with ninjia..."
-        ninja
-        if [ $? -ne 0 ]; then
-            printf "failed to build OpenCL-ICD-Loader\n"
-            exit 1
-        fi
-        mkdir -p ${NDK_TOOLCHAIN_SYSROOT_ARM64_LIB_PATH}
-        /bin/cp -fv libOpenCL.so ${NDK_TOOLCHAIN_SYSROOT_ARM64_LIB_PATH}
-
-        echo "OpenCL components setup complete"
-        echo "OpenCL Headers are in: ${NDK_TOOLCHAIN_SYSROOT_INCLUDE_PATH}/CL"
-        echo "libOpenCL.so is in:    ${NDK_TOOLCHAIN_SYSROOT_ARM64_LIB_PATH}/libOpenCL.so"
+        echo "Vulkan components setup complete"
+        echo "Vulkan Headers are in: ${VULKAN_HEADERS_PATH}"
 
         cd ${PROJECT_ROOT_PATH}
     else
-        printf "OpenCL SDK already exist:    ${OPENCL_SDK_PATH} \n\n"
+        printf "Vulkan SDK already exist:    ${VULKAN_SDK_PATH} \n\n"
     fi
 }
 
@@ -188,6 +151,7 @@ function check_and_download_ndk()
             printf "failed to download Android NDK to %s \n" "${ANDROID_NDK}"
             exit 1
         fi
+        /bin/cp -fv ${ANDROID_NDK}/shader-tools/linux-x86_64/glslc ${ANDROID_NDK}/shader-tools/linux-x86_64/glsls
         cd ${PROJECT_ROOT_PATH}
 
         printf "Android NDK saved to ${ANDROID_NDK} \n\n"
@@ -199,8 +163,8 @@ function check_and_download_ndk()
 
 function build_arm64
 {
-    cmake -H. -B./out/ggmlopencl-android -DCMAKE_BUILD_TYPE=Release -DGGML_OPENMP=OFF -DCMAKE_TOOLCHAIN_FILE=${ANDROID_NDK}/build/cmake/android.toolchain.cmake -DANDROID_ABI=arm64-v8a -DANDROID_PLATFORM=latest -DCMAKE_C_FLAGS=-march=armv8.7-a -DGGML_OPENCL=ON -DLLAMA_CURL=OFF
-    cd out/ggmlopencl-android
+    cmake -H. -B./out/ggmlvulkan-android -DCMAKE_BUILD_TYPE=Release -DGGML_OPENMP=OFF -DCMAKE_TOOLCHAIN_FILE=${ANDROID_NDK}/build/cmake/android.toolchain.cmake -DANDROID_ABI=arm64-v8a -DANDROID_PLATFORM=latest -DCMAKE_C_FLAGS=-march=armv8.7-a -DGGML_VULKAN=ON -DLLAMA_CURL=OFF -DGGML_LLAMAFILE=OFF -DVulkan_GLSLC_EXECUTABLE=${ANDROID_NDK}/shader-tools/linux-x86_64/glsls -DVulkan_INCLUDE_DIR=${VULKAN_HEADERS_PATH}/include
+    cd out/ggmlvulkan-android
     make -j${HOST_CPU_COUNTS}
     show_pwd
 
@@ -210,8 +174,8 @@ function build_arm64
 
 function build_arm64_debug
 {
-    cmake -H. -B./out/ggmlopencl-android -DCMAKE_BUILD_TYPE=Debug -DGGML_OPENMP=OFF -DCMAKE_TOOLCHAIN_FILE=${ANDROID_NDK}/build/cmake/android.toolchain.cmake -DANDROID_ABI=arm64-v8a -DANDROID_PLATFORM=latest -DCMAKE_C_FLAGS=-march=armv8.7-a -DGGML_OPENCL=ON -DLLAMA_CURL=OFF
-    cd out/ggmlopencl-android
+    cmake -H. -B./out/ggmlvulkan-android -DCMAKE_BUILD_TYPE=Debug -DGGML_OPENMP=OFF -DCMAKE_TOOLCHAIN_FILE=${ANDROID_NDK}/build/cmake/android.toolchain.cmake -DANDROID_ABI=arm64-v8a -DANDROID_PLATFORM=latest -DCMAKE_C_FLAGS=-march=armv8.7-a -DGGML_VULKAN=ON -DGGML_VULKAN_DEBUG=ON -DLLAMA_CURL=OFF -DGGML_LLAMAFILE=OFF -DVulkan_GLSLC_EXECUTABLE=${ANDROID_NDK}/shader-tools/linux-x86_64/glsls -DVulkan_INCLUDE_DIR=${VULKAN_HEADERS_PATH}/include
+    cd out/ggmlvulkan-android
     make -j${HOST_CPU_COUNTS}
     show_pwd
 
@@ -221,29 +185,29 @@ function build_arm64_debug
 
 function remove_temp_dir()
 {
-    if [ -d out/ggmlopencl-android ]; then
-        echo "remove out/ggmlopencl-android directory in `pwd`"
-        rm -rf out/ggmlopencl-android
+    if [ -d out/ggmlvulkan-android ]; then
+        echo "remove out/ggmlvulkan-android directory in `pwd`"
+        rm -rf out/ggmlvulkan-android
     fi
 }
 
 
-function build_ggml_opencl()
+function build_ggml_vulkan()
 {
     show_pwd
     check_and_download_ndk
-    check_and_download_opencl_sdk
+    check_and_download_vulkan_sdk
     dump_vars
     remove_temp_dir
     build_arm64
 }
 
 
-function build_ggml_opencl_debug()
+function build_ggml_vulkan_debug()
 {
     show_pwd
     check_and_download_ndk
-    check_and_download_opencl_sdk
+    check_and_download_vulkan_sdk
     dump_vars
     remove_temp_dir
     build_arm64_debug
@@ -291,10 +255,11 @@ function prepare_run_on_phone()
 
     check_prebuilt_models
 
-    if [ -f ./out/ggmlopencl-android/bin/libggml-cpu.so ]; then
-        adb push ./out/ggmlopencl-android/bin/*.so ${REMOTE_PATH}/
+    if [ -f ./out/ggmlvulkan-android/bin/libggml-cpu.so ]; then
+        adb push ./out/ggmlvulkan-android/bin/*.so ${REMOTE_PATH}/
     fi
-    adb push ./out/ggmlopencl-android/bin/${program} ${REMOTE_PATH}/
+    adb push ./out/ggmlvulkan-android/bin/${program} ${REMOTE_PATH}/
+    adb push ./out/ggmlvulkan-android/bin/vulkan-shaders-gen ${REMOTE_PATH}/
 
     adb shell ls -l ${REMOTE_PATH}/libggml-*.so
 
@@ -409,7 +374,7 @@ show_pwd
 check_commands_in_host
 check_android_phone
 check_and_download_ndk
-check_and_download_opencl_sdk
+check_and_download_vulkan_sdk
 check_prebuilt_models
 
 if [ $# == 0 ]; then
@@ -423,10 +388,10 @@ elif [ $# == 1 ]; then
         show_usage
         exit 1
     elif [ "$1" == "build" ]; then
-        build_ggml_opencl
+        build_ggml_vulkan
         exit 0
     elif [ "$1" == "build_debug" ]; then
-        build_ggml_opencl_debug
+        build_ggml_vulkan_debug
         exit 0
     elif [ "$1" == "run_testops" ]; then
         run_test-ops
