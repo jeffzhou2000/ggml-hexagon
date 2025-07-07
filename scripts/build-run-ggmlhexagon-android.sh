@@ -62,26 +62,23 @@ GGMLDSP_RELEASE_DATE=20250627
 
 ######## part-2: contents in this part can be modified ########
 
-PROMPT_STRING="every day of your life, it is important to take the time to smell the roses — to appreciate the experiences that lead to happiness. This is part of being truly happy.Happiness is a state of mind. It starts with accepting where you are, knowing where you are going and planning to enjoy every moment along the way. You know how to be happy, and feel that you have enough time or money or love or whatever you need to achieve your goals. And just feeling that you have enough of everything means that you do indeed have enough.You have to choose to be happy, and focus upon being happy, in order to be happy. If you instead focus upon knowing that you will be happy if you achieve something, you will never be happy, as you have not learned to smell the roses. The irony is that when you are happy, you are inevitably more productive, and far more likely to achieve what everything-seekers are seeking. you will never be happy, as you have not learned to smell the roses. The irony is that when you are happy, you are inevitably more productive, and far more likely to achieve what everything-seekers are seeking."
 PROMPT_STRING="introduce the movie Once Upon a Time in America briefly.\n"
 
-#following two customized models only for self-test
-#20.4 MiB in models/t5-very-small-random-F32.gguf
-TEST_MODEL_NAME=/sdcard/t5-very-small-random-F32.gguf
-#1.0 GiB, can be downloadded via this script in function check_prebuilt_models()
-TEST_MODEL_NAME=/sdcard/t5-277M-F32.gguf
-
+#the following LLM models has verified(works fine) with Hexagon-cDSP backend on a Snapdragon 8Elite based Android phone although inference performance is not good at the moment
+#for llama-cli, 6.9 GiB, can be downloadded via this script in function check_prebuilt_models()
+TEST_MODEL_NAME=/sdcard/gemma-3n-E4B-it-Q8_0.gguf
+#for llama-cli, 8.2 GiB
+#TEST_MODEL_NAME=/sdcard/Qwen3-8B-Q8_0.gguf
+#for llama-cli, 4.0 GiB
+#TEST_MODEL_NAME=/sdcard/Qwen3-4B-Q8_0.gguf
+#for llama-cli, 3.9 GiB
+#TEST_MODEL_NAME=/sdcard/gemma-3-4b-it-Q8_0.gguf
 #for llama-cli, 1.6 GiB, can be downloadded via this script in function check_prebuilt_models()
 TEST_MODEL_NAME=/sdcard/MiniCPM4-0.5B-F32.gguf
 #for llama-cli, 1.1 GiB, will be downloaded automatically via this script when running this script at the first time
 TEST_MODEL_NAME=/sdcard/qwen1_5-1_8b-chat-q4_0.gguf
 #for llama-cli, 4.5 GiB, will be downloadded automatically via this script when running this script at the first time
 TEST_MODEL_NAME=/sdcard/gemma-3n-E2B-it-Q8_0.gguf
-
-#other LLM models for llama-cli
-#TEST_MODEL_NAME=/sdcard/Qwen3-8B-Q8_0.gguf
-#TEST_MODEL_NAME=/sdcard/Qwen3-4B-Q8_0.gguf
-#TEST_MODEL_NAME=/sdcard/gemma-3-4b-it-Q8_0.gguf
 
 #for llama-bench, 4.5 GiB, will be downloadded automatically via this script when running this script at the first time
 GGUF_MODEL_NAME=/sdcard/gemma-3n-E2B-it-Q8_0.gguf
@@ -107,7 +104,7 @@ GGUF_MODEL_NAME=/sdcard/qwen1_5-1_8b-chat-q4_0.gguf
 #HTP_ARCH_VERSION_a=V79
 
 #modify the following two lines to adapt to test phone
-#for simplify workflow, only support v75 and v79, or only support 8Gen3 and 8Elite
+#for simplify workflow, only support v75 and v79, or only support 8Gen3 and 8Elite at the moment
 #v79/8Elite is strongly recommended because:
 #1. sometimes the same dsp codes can running well as expected on Snapdragon 8Elite based phone
 #   but can't works as expected on other Snapdragon based phone(e.g. 8Gen3).
@@ -436,6 +433,7 @@ function check_prebuilt_models()
     check_and_download_model qwen1_5-1_8b-chat-q4_0.gguf https://huggingface.co/Qwen/Qwen1.5-1.8B-Chat-GGUF/resolve/main/qwen1_5-1_8b-chat-q4_0.gguf
     #check_and_download_model MiniCPM4-0.5B-F32.gguf https://huggingface.co/zhouwg/kantv/resolve/main/MiniCPM4-0.5B-F32.gguf
     #check_and_download_model t5-277M-F32.gguf https://huggingface.co/zhouwg/kantv/resolve/main/t5-277M-F32.gguf
+    #check_and_download_model gemma-3n-E4B-it-Q8_0.gguf https://huggingface.co/ggml-org/gemma-3n-E4B-it-GGUF/resolve/main/gemma-3n-E4B-it-Q8_0.gguf
     check_and_download_model gemma-3n-E2B-it-Q8_0.gguf https://huggingface.co/ggml-org/gemma-3n-E2B-it-GGUF/resolve/main/gemma-3n-E2B-it-Q8_0.gguf
 
     set -e
