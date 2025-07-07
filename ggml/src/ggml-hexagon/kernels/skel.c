@@ -278,11 +278,11 @@ static const StructType structTypes[1] = {{0x7,&(typeArrays[0]),0x70,0x4,0x6c,0x
 static const Type types[5] = {{0x4,{{(const uintptr_t)0,(const uintptr_t)1}}, 2,0x4},{0x10,{{(const uintptr_t)&(types[0]),(const uintptr_t)0x4}}, 8,0x4},{0x40,{{(const uintptr_t)&(types[0]),(const uintptr_t)0x10}}, 8,0x4},{SLIM_IFPTR32(0x8,0x10),{{(const uintptr_t)&(types[4]),(const uintptr_t)0x0}}, 9,SLIM_IFPTR32(0x4,0x8)},{0x4,{{(const uintptr_t)0,(const uintptr_t)1}}, 2,0x4}};
 static const Parameter parameters[6] = {{SLIM_IFPTR32(0x8,0x10),{{(const uintptr_t)0x0,0}}, 4,SLIM_IFPTR32(0x4,0x8),0,0},{SLIM_IFPTR32(0x4,0x8),{{(const uintptr_t)0xdeadc0de,(const uintptr_t)0}}, 0,SLIM_IFPTR32(0x4,0x8),3,0},{SLIM_IFPTR32(0x4,0x8),{{(const uintptr_t)0xdeadc0de,(const uintptr_t)0}}, 0,SLIM_IFPTR32(0x4,0x8),0,0},{0x4,{{(const uintptr_t)0,(const uintptr_t)1}}, 2,0x4,0,0},{SLIM_IFPTR32(0x74,0x80),{{(const uintptr_t)&(structTypes[0]),0}}, 22,SLIM_IFPTR32(0x4,0x8),0,0},{SLIM_IFPTR32(0x74,0x80),{{(const uintptr_t)&(structTypes[0]),0}}, 22,SLIM_IFPTR32(0x4,0x8),3,0}};
 static const Parameter* const parameterArrays[9] = {(&(parameters[4])),(&(parameters[4])),(&(parameters[5])),(&(parameters[3])),(&(parameters[3])),(&(parameters[3])),(&(parameters[0])),(&(parameters[1])),(&(parameters[2]))};
-static const Method methods[4] = {{REMOTE_SCALARS_MAKEX(0,0,0x2,0x0,0x0,0x1),0x4,0x0,2,2,(&(parameterArrays[6])),0x4,0x1},{REMOTE_SCALARS_MAKEX(0,0,0x0,0x0,0x1,0x0),0x0,0x0,1,1,(&(parameterArrays[8])),0x1,0x0},{REMOTE_SCALARS_MAKEX(0,0,0x1,0x0,0x0,0x0),0xc,0x0,3,3,(&(parameterArrays[3])),0x4,0x0},{REMOTE_SCALARS_MAKEX(0,0,0x3,0x2,0x0,0x0),0xe4,0x6c,3,3,(&(parameterArrays[0])),0x4,0x4}};
-static const Method* const methodArrays[8] = {&(methods[0]),&(methods[1]),&(methods[2]),&(methods[3]),&(methods[3]),&(methods[3]),&(methods[3]),&(methods[3])};
-static const char strings[167] = "dsp_setclocks\0dsp_rmsnorm\0dsp_softmax\0dcvs_enable\0power_level\0dsp_pool2d\0dsp_mulmat\0op_params\0dsp_add\0latency\0flags\0close\0src1\0data\0type\0src0\0open\0dst\0uri\0op\0nb\0ne\0h\0";
-static const uint16_t methodStrings[134] = {62,137,132,161,158,155,84,110,127,122,132,161,158,155,84,110,127,147,132,161,158,155,84,110,127,14,137,132,161,158,155,84,110,127,122,132,161,158,155,84,110,127,147,132,161,158,155,84,110,127,26,137,132,161,158,155,84,110,127,122,132,161,158,155,84,110,127,147,132,161,158,155,84,110,127,73,137,132,161,158,155,84,110,127,122,132,161,158,155,84,110,127,147,132,161,158,155,84,110,127,94,137,132,161,158,155,84,110,127,122,132,161,158,155,84,110,127,147,132,161,158,155,84,110,127,0,50,102,38,142,151,164,116,164};
-static const uint16_t methodStringsArrays[8] = {129,132,125,100,75,50,25,0};
+static const Method methods[4] = {{REMOTE_SCALARS_MAKEX(0,0,0x2,0x0,0x0,0x1),0x4,0x0,2,2,(&(parameterArrays[7])),0x4,0x1},{REMOTE_SCALARS_MAKEX(0,0,0x0,0x0,0x1,0x0),0x0,0x0,1,1,(&(parameterArrays[9])),0x1,0x0},{REMOTE_SCALARS_MAKEX(0,0,0x1,0x0,0x0,0x0),0x10,0x0,4,4,(&(parameterArrays[0])),0x4,0x0},{REMOTE_SCALARS_MAKEX(0,0,0x3,0x2,0x0,0x0),0xe4,0x6c,3,3,(&(parameterArrays[4])),0x4,0x4}};
+static const Method* const methodArrays[5] = {&(methods[0]),&(methods[1]),&(methods[2]),&(methods[3]),&(methods[3])};
+static const char strings[145] = "mulmat_algotype\0thread_counts\0dsp_setclocks\0power_level\0dsp_mulmat\0op_params\0dsp_add\0latency\0flags\0close\0src1\0data\0src0\0open\0dst\0uri\0op\0nb\0ne\0h\0";
+static const uint16_t methodStrings[60] = {56,115,11,139,136,133,67,93,110,105,11,139,136,133,67,93,110,125,11,139,136,133,67,93,110,77,115,11,139,136,133,67,93,110,105,11,139,136,133,67,93,110,125,11,139,136,133,67,93,110,30,44,85,0,16,120,129,142,99,142};
+static const uint16_t methodStringsArrays[5] = {55,58,50,25,0};
 __QAIC_SLIM_EXPORT const Interface __QAIC_SLIM(ggmlop_slim) = {8,&(methodArrays[0]),0,0,&(methodStringsArrays [0]),methodStrings,strings};
 #endif //_GGMLOP_SLIM_H
 extern int adsp_mmap_fd_getinfo(int, uint32_t *);
@@ -610,12 +610,6 @@ __QAIC_SKEL_EXPORT int __QAIC_SKEL(ggmldsp_skel_handle_invoke)(remote_handle64 _
       return _skel_method(__QAIC_IMPL(ggmlop_dsp_add), _h, _sc, _pra);
       case 4:
       return _skel_method(__QAIC_IMPL(ggmlop_dsp_mulmat), _h, _sc, _pra);
-      case 5:
-      return _skel_method(__QAIC_IMPL(ggmlop_dsp_softmax), _h, _sc, _pra);
-      case 6:
-      return _skel_method(__QAIC_IMPL(ggmlop_dsp_rmsnorm), _h, _sc, _pra);
-      case 7:
-      return _skel_method(__QAIC_IMPL(ggmlop_dsp_pool2d), _h, _sc, _pra);
    }
    return AEE_EUNSUPPORTED;
 }

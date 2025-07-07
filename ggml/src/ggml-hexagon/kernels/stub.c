@@ -449,15 +449,3 @@ __QAIC_STUB_EXPORT int __QAIC_STUB(ggmlop_dsp_mulmat)(remote_handle64 _handle, c
    uint32_t _mid = 4;
    return _stub_method_1(_handle, _mid, (uintptr_t*)src0, (uintptr_t*)src1, (uintptr_t*)dst);
 }
-__QAIC_STUB_EXPORT int __QAIC_STUB(ggmlop_dsp_softmax)(remote_handle64 _handle, const dsptensor* src0, const dsptensor* src1, dsptensor* dst) __QAIC_STUB_ATTRIBUTE {
-   uint32_t _mid = 5;
-   return _stub_method_1(_handle, _mid, (uintptr_t*)src0, (uintptr_t*)src1, (uintptr_t*)dst);
-}
-__QAIC_STUB_EXPORT int __QAIC_STUB(ggmlop_dsp_rmsnorm)(remote_handle64 _handle, const dsptensor* src0, const dsptensor* src1, dsptensor* dst) __QAIC_STUB_ATTRIBUTE {
-   uint32_t _mid = 6;
-   return _stub_method_1(_handle, _mid, (uintptr_t*)src0, (uintptr_t*)src1, (uintptr_t*)dst);
-}
-__QAIC_STUB_EXPORT int __QAIC_STUB(ggmlop_dsp_pool2d)(remote_handle64 _handle, const dsptensor* src0, const dsptensor* src1, dsptensor* dst) __QAIC_STUB_ATTRIBUTE {
-   uint32_t _mid = 7;
-   return _stub_method_1(_handle, _mid, (uintptr_t*)src0, (uintptr_t*)src1, (uintptr_t*)dst);
-}
