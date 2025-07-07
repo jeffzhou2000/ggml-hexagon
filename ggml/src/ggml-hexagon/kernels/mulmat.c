@@ -232,16 +232,6 @@ static int ggmlop_dsp_mulmat_singlethread(remote_handle64 h, const ggml_tensor *
     return 0;
 }
 
-static int ggmlop_dsp_mulmat_multithread(remote_handle64 h, const struct dsptensor * src0, const struct dsptensor * src1, dsptensor * dst) {
-    GGMLHEXAGON_LOG_DEBUG("enter %s", __func__ );
-    GGMLHEXAGON_LOG_DEBUG("leave %s", __func__ );
-    return 0;
-}
-
 int ggmlop_dsp_mulmat(remote_handle64 h, const struct dsptensor * src0, const struct dsptensor * src1, dsptensor * dst) {
-    if (ggmlop_get_thread_counts() > 1) {
-        return ggmlop_dsp_mulmat_multithread(h, src0, src1, dst);
-    } else {
-        return ggmlop_dsp_mulmat_singlethread(h, src0, src1, dst);
-    }
+    return ggmlop_dsp_mulmat_singlethread(h, src0, src1, dst);
 }
