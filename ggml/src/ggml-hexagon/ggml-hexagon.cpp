@@ -705,7 +705,7 @@ static constexpr const hexagon_op_caps ggmlhexagon_k_op_caps[] = {
         {false, GGML_OP_CONCAT, 0, nullptr, nullptr},
         {false, GGML_OP_SILU_BACK, 0, nullptr, nullptr},
         {false, GGML_OP_NORM, 0, nullptr, nullptr},
-        {true,  GGML_OP_RMS_NORM, 1, "ggmlop_dsp_rmsnorm", ggmlop_dsp_rmsnorm},
+        {false, GGML_OP_RMS_NORM, 0, nullptr, nullptr},
         {false, GGML_OP_RMS_NORM_BACK, 0, nullptr, nullptr},
         {false, GGML_OP_GROUP_NORM, 0, nullptr, nullptr},
         {false, GGML_OP_L2_NORM, 0, nullptr, nullptr},
@@ -726,7 +726,7 @@ static constexpr const hexagon_op_caps ggmlhexagon_k_op_caps[] = {
         {false, GGML_OP_DIAG, 0, nullptr, nullptr},
         {false, GGML_OP_DIAG_MASK_INF, 0, nullptr, nullptr},
         {false, GGML_OP_DIAG_MASK_ZERO, 0, nullptr, nullptr},
-        {true,  GGML_OP_SOFT_MAX, 1, "ggmlop_dsp_softmax", ggmlop_dsp_softmax},
+        {false, GGML_OP_SOFT_MAX, 0, nullptr, nullptr},
         {false, GGML_OP_SOFT_MAX_BACK, 0, nullptr, nullptr},
         {false, GGML_OP_ROPE, 0, nullptr, nullptr},
         {false, GGML_OP_ROPE_BACK, 0, nullptr, nullptr},
@@ -738,7 +738,7 @@ static constexpr const hexagon_op_caps ggmlhexagon_k_op_caps[] = {
         {false, GGML_OP_CONV_2D_DW, 0, nullptr, nullptr},
         {false, GGML_OP_CONV_TRANSPOSE_2D, 0, nullptr, nullptr},
         {false, GGML_OP_POOL_1D, 0, nullptr, nullptr},
-        {true,  GGML_OP_POOL_2D, 1, "ggmlop_dsp_pool2d", ggmlop_dsp_pool2d},
+        {false, GGML_OP_POOL_2D, 0, nullptr, nullptr},
         {false, GGML_OP_POOL_2D_BACK, 0, nullptr, nullptr},
         {false, GGML_OP_UPSCALE, 0, nullptr, nullptr},
         {false, GGML_OP_PAD, 0, nullptr, nullptr},
@@ -773,7 +773,6 @@ static constexpr const hexagon_op_caps ggmlhexagon_k_op_caps[] = {
 static_assert(ggmlhexagon_k_op_caps[GGML_OP_NONE].supported,     "GGML_OP_NONE is not true");
 static_assert(ggmlhexagon_k_op_caps[GGML_OP_ADD].supported,      "GGML_OP_ADD is not true");
 static_assert(ggmlhexagon_k_op_caps[GGML_OP_MUL_MAT].supported,  "GGML_OP_MUL_MAT is not true");
-static_assert(ggmlhexagon_k_op_caps[GGML_OP_SOFT_MAX].supported, "GGML_OP_SOFT_MAX is not true");
 static_assert(std::size(ggmlhexagon_k_op_caps) == (static_cast<size_t>(GGML_OP_COUNT)),
               "pls check ggmlhexagon_k_op_caps and ensure is corresponding to latest ggml.h");
 
@@ -6239,7 +6238,7 @@ static ggml_backend_buffer_t ggml_backend_hexagon_buffer_type_alloc_buffer(
     if ((HWACCEL_CDSP == g_hexagon_appcfg.hwaccel_approach) && (1 == g_hexagon_appcfg.enable_rpc_ion_mempool)) {
         GGMLHEXAGON_LOG_DEBUG("device %d(%s)", ctx->device, ggml_backend_hexagon_get_devname(ctx->device));
         GGML_ASSERT(nullptr != ctx->rpc_mempool);
-        GGMLHEXAGON_LOG_VERBOSE("size %ld(%d MiB), rpc_mempool_usage %ld(%d MiB), rpc_mempool_len %ld(%d MiB)",
+        GGMLHEXAGON_LOG_DEBUG("size %ld(%d MiB), rpc_mempool_usage %ld(%d MiB), rpc_mempool_len %ld(%d MiB)",
                               size, size / SIZE_IN_MB, ctx->rpc_mempool_usage, ctx->rpc_mempool_usage / SIZE_IN_MB,
                               ctx->rpc_mempool_len, ctx->rpc_mempool_len / SIZE_IN_MB);
         if (size + ctx->rpc_mempool_usage >= ctx->rpc_mempool_len) {

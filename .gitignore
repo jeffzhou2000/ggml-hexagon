@@ -155,3 +155,7 @@ prebuilts/QNN_SDK/v2.36.0.250627.zip
 prebuilts/Hexagon_SDK/minimal-hexagon-sdk-6.2.0.1.xz
 prebuilts/OpenCL_SDK/
 prebuilts/Vulkan_SDK/
+ggml/src/ggml-hexagon/kernels/ggmlop.h
+ggml/src/ggml-hexagon/kernels/ggmlop_skel.c
+ggml/src/ggml-hexagon/kernels/ggmlop_stub.c
+
