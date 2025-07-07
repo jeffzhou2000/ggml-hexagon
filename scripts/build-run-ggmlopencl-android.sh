@@ -41,10 +41,12 @@ OPENCL_HEADERS_PATH=${OPENCL_SDK_PATH}/OpenCL-Headers
 running_params=" -ngl 99 -t 4 -n 256 --no-warmup "
 
 ######## part-2: contents in this part can be modified ########
+PROMPT_STRING="introduce the movie Once Upon a Time in America briefly.\n"
+
 #for llama-cli, 1.1 GiB, will be downloaded automatically via this script when running this script at the first time
 TEST_MODEL_NAME=/sdcard/qwen1_5-1_8b-chat-q4_0.gguf
 #for llama-cli, 4.5 GiB, will be downloadded automatically via this script when running this script at the first time
-TEST_MODEL_NAME=/sdcard/gemma-3n-E2B-it-Q8_0.gguf
+#TEST_MODEL_NAME=/sdcard/gemma-3n-E2B-it-Q8_0.gguf
 
 #for llama-bench, 4.5 GiB, will be downloadded automatically via this script when running this script at the first time
 GGUF_MODEL_NAME=/sdcard/gemma-3n-E2B-it-Q8_0.gguf
