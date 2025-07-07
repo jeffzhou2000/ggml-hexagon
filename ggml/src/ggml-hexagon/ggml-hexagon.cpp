@@ -190,9 +190,9 @@ using pfn_rpc_mem_deinit                        = void (*)(void);
 using pfn_rpc_mem_alloc                         = void *(*)(int, uint32_t, int);
 using pfn_rpc_mem_free                          = void (*)(void *);
 using pfn_rpc_mem_to_fd                         = int (*)(void *);
-using _pfn_QnnSaver_initialize                  = decltype(QnnSaver_initialize);
-using _pfn_QnnInterface_getProviders            = decltype(QnnInterface_getProviders);
-using _pfn_QnnSystemInterface_getProviders      = decltype(QnnSystemInterface_getProviders);
+using pfn_qnnsaver_initialize                   = decltype(QnnSaver_initialize);
+using pfn_qnninterface_getproviders             = decltype(QnnInterface_getProviders);
+using pfn_qnnsysteminterface_getproviders       = decltype(QnnSystemInterface_getProviders);
 
 //QNN resource management for the general approach through QNN
 using qnn_tensors_t                             = std::vector< Qnn_Tensor_t >;
@@ -3157,7 +3157,7 @@ int qnn_instance::load_backend(std::string & lib_path, const QnnSaver_Config_t *
         return 1;
     }
 
-    auto get_providers = ggmlqnn_load_qnn_functionpointers<_pfn_QnnInterface_getProviders *>(
+    auto get_providers = ggmlqnn_load_qnn_functionpointers<pfn_qnninterface_getproviders *>(
                                lib_handle,
                                "QnnInterface_getProviders");
     if (nullptr == get_providers) {
@@ -3207,7 +3207,7 @@ int qnn_instance::load_backend(std::string & lib_path, const QnnSaver_Config_t *
     _backend_id         = backend_id;
 
     auto saver_initialize =
-            ggmlqnn_load_qnn_functionpointers<_pfn_QnnSaver_initialize *>(_loaded_lib_handle, "QnnSaver_initialize");
+            ggmlqnn_load_qnn_functionpointers<pfn_qnnsaver_initialize *>(_loaded_lib_handle, "QnnSaver_initialize");
     if (nullptr != saver_initialize) {
         error = saver_initialize(saver_config);
         if (error != QNN_SUCCESS) {
@@ -3258,7 +3258,7 @@ int qnn_instance::load_system() {
         }
     }
 
-    auto * get_providers = reinterpret_cast<_pfn_QnnSystemInterface_getProviders *>(dlsym(
+    auto * get_providers = reinterpret_cast<pfn_qnnsysteminterface_getproviders *>(dlsym(
             _system_lib_handle, "QnnSystemInterface_getProviders"));
     if (nullptr == get_providers) {
         GGMLHEXAGON_LOG_WARN("can not load QNN symbol QnnSystemInterface_getProviders: %s\n", dlerror());
