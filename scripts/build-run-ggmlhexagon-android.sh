@@ -78,7 +78,7 @@ TEST_MODEL_NAME=/sdcard/MiniCPM4-0.5B-F32.gguf
 #for llama-cli, 1.1 GiB, will be downloaded automatically via this script when running this script at the first time
 TEST_MODEL_NAME=/sdcard/qwen1_5-1_8b-chat-q4_0.gguf
 #for llama-cli, 4.5 GiB, will be downloadded automatically via this script when running this script at the first time
-TEST_MODEL_NAME=/sdcard/gemma-3n-E2B-it-Q8_0.gguf
+#TEST_MODEL_NAME=/sdcard/gemma-3n-E2B-it-Q8_0.gguf
 
 #for llama-bench, 4.5 GiB, will be downloadded automatically via this script when running this script at the first time
 GGUF_MODEL_NAME=/sdcard/gemma-3n-E2B-it-Q8_0.gguf
