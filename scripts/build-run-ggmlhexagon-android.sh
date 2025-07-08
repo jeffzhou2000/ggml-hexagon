@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Copyright (c) zhouwg(https://github.com/zhouwg)
+# Copyright (c) 2024-2025 zhouwg(https://github.com/zhouwg)
 #
 # 1. build llama.cpp + ggml-hexagon backend on Linux for Android phone equipped with Qualcomm Snapdragon mobile SoC
 #    this script will setup local dev envs automatically
