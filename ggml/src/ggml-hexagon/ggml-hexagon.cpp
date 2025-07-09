@@ -83,7 +83,6 @@
 #include "rpcmem.h"
 #include "remote.h"
 #include "os_defines.h"
-#include "domain.h"
 #include "AEEStdErr.h"
 #include "HAP_power.h"
 #include "HAP_farf.h"
@@ -3378,7 +3377,7 @@ static void ggmlqnn_sdk_logcallback(const char * fmt,
     {
         std::lock_guard<std::mutex> lock(log_mutex);
         memset(s_ggmlqnn_sdk_logbuf, 0, GGMLHEXAGON_LOGBUF_LEN);
-        vsnprintf(reinterpret_cast<char *const>(s_ggmlqnn_sdk_logbuf), GGMLHEXAGON_LOGBUF_LEN, fmt, argp);
+        vsnprintf(reinterpret_cast<char *>(s_ggmlqnn_sdk_logbuf), GGMLHEXAGON_LOGBUF_LEN, fmt, argp);
         GGMLHEXAGON_LOG_DEBUG("%8.1fms [%-7s] %s\n", ms, log_level_desc, s_ggmlqnn_sdk_logbuf);
     }
 #if !GGMLHEXAGON_DEBUG
@@ -4602,7 +4601,7 @@ static void ggmlqnn_compute_mul_mat(ggml_backend_hexagon_context * ctx, ggml_ten
         //retrieve computational resource from cached QNN graph
         qnn_singlenode_res_t & graph_item = ctx->qnn_singlenode_graph_map[graph_name];
         graph_handle = std::get<0>(graph_item);
-        qnn_ptensors_t &tensors = std::get<1>(graph_item);
+        qnn_ptensors_t & tensors = std::get<1>(graph_item);
         p_tensor0 = tensors[0];
         p_tensor1 = tensors[1];
         p_tensor2 = tensors[2];
