@@ -1,25 +1,8 @@
 ### Compliance Statement
 
-we should strictly follow Qualcomm's IPR policy, even in open-source community.
+Currently, Qualcomm's Hexagon SDK can't downloaded automatically via the script [build-run-android.sh](https://github.com/zhouwg/ggml-hexagon/blob/self-build/scripts/build-run-android.sh) because of well-known and make-sense IPR policy. I provide a customized&tailored minimal Hexagon SDK to **simplify workflow** of build ggml-hexagon under the premise of **strictly abiding by Qualcomm's IPR policy.**
 
-
-### The ggml-hexagon way
-
-- Simple is beautiful
-
-  we believe the philosophy of "<b>simple is beautiful</b>" which <b>comes from the great Unix</b>.
-
-- Make it run, then make it right, then make it fast
-
-- Explore and have fun!
-
-  we believe the philosophy of <b>try crazy ideas, build wild demos, and push the edge of what’s possible</b>(which is one of the core spirits of ggml-way).
-
-- The rule-based order
-
-  we respect the rule-based order and we respect the IPR.
-
-### README
+### Contents in this directory
 
 - QNN_SDK: the fully QNN SDK could be found at Qualcomm's offcial website: https://www.qualcomm.com/developer/software/qualcomm-ai-engine-direct-sdk, will be downloaded automatically via [build-run-ggmlhexagon-android.sh](https://github.com/zhouwg/ggml-hexagon/blob/self-build/scripts/build-run-ggmlhexagon-android.sh).
 
