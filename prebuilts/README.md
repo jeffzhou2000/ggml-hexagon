@@ -1,6 +1,6 @@
 ### Compliance Statement
 
-Currently, Qualcomm's Hexagon SDK can't downloaded automatically via the script [build-run-android.sh](https://github.com/zhouwg/ggml-hexagon/blob/self-build/scripts/build-run-android.sh) because of well-known and make-sense IPR policy. I provide a customized&tailored minimal Hexagon SDK to **simplify workflow** of build ggml-hexagon under the premise of **strictly abiding by Qualcomm's IPR policy.**
+Currently, Qualcomm's Hexagon SDK can't downloaded automatically via the script [build-run-ggmlhexagon-android.sh](https://github.com/zhouwg/ggml-hexagon/blob/self-build/scripts/build-run-ggmlhexagon-android.sh) because of well-known and make-sense IPR policy. I provide a customized&tailored minimal Hexagon SDK to **simplify workflow** of build ggml-hexagon under the premise of **strictly abiding by Qualcomm's IPR policy.**
 
 ### Contents in this directory
 
