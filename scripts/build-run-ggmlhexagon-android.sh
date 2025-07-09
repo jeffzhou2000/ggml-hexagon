@@ -178,7 +178,7 @@ function check_and_download_hexagon_sdk()
             echo -e "minimal-hexagon-sdk-6.2.0.1.xz already exist\n"
         else
             echo -e "begin downloading minimal-hexagon-sdk-6.2.0.1.xz \n"
-            wget --no-config --quiet --show-progress -O ${PROJECT_ROOT_PATH}/prebuilts/Hexagon_SDK/minimal-hexagon-sdk-6.2.0.1.xz https://github.com/kantv-ai/toolchain/raw/refs/heads/main/minimal-hexagon-sdk-6.2.0.1.xz
+            wget --no-config --quiet --show-progress -O ${PROJECT_ROOT_PATH}/prebuilts/Hexagon_SDK/minimal-hexagon-sdk-6.2.0.1.xz https://github.com/zhouwg/toolchain/raw/refs/heads/main/minimal-hexagon-sdk-6.2.0.1.xz
             if [ $? -ne 0 ]; then
                 printf "failed to download minimal-hexagon-sdk-6.2.0.1.xz\n"
                 exit 1
@@ -213,7 +213,7 @@ function check_and_download_qnn_sdk()
     fi
 
     if [ ${is_qnn_sdk_exist} -eq 0 ]; then
-        if [ ! -f ${PROJECT_ROOT_PATH}/prebuild/v${QNN_SDK_VERSION}.zip ]; then
+        if [ ! -f ${PROJECT_ROOT_PATH}/prebuilts/v${QNN_SDK_VERSION}.zip ]; then
             wget --no-config --quiet --show-progress -O ${PROJECT_ROOT_PATH}/prebuilts/QNN_SDK/v${QNN_SDK_VERSION}.zip https://softwarecenter.qualcomm.com/api/download/software/sdks/Qualcomm_AI_Runtime_Community/All/${QNN_SDK_VERSION}/v${QNN_SDK_VERSION}.zip
         fi
         if [ $? -ne 0 ]; then
@@ -411,22 +411,6 @@ function check_and_download_model()
 
 function check_prebuilt_models()
 {
-    #normal LLM models
-    #https://huggingface.co/ggml-org/gemma-3-4b-it-GGUF/blob/main/gemma-3-4b-it-Q8_0.gguf,              size 4.13 GiB
-    #https://huggingface.co/Qwen/Qwen1.5-1.8B-Chat-GGUF/blob/main/qwen1_5-1_8b-chat-q4_0.gguf,          size 1.12 GiB
-
-    #customized LLM models for compare inference peformance of QNN-CPU, QNN-GPU, QNN-NPU, cDSP, the default ggml backend
-    #during development stage
-    #https://huggingface.co/zhouwg/kantv/blob/main/t5-very-small-random-F32.gguf,                       size 20.4 MiB
-    #original model:  https://huggingface.co/stas/t5-very-small-random
-
-    #https://huggingface.co/zhouwg/kantv/blob/main/MiniCPM4-0.5B-F32.gguf,                              size 1.74 GiB
-    #original model:  https://huggingface.co/openbmb/MiniCPM4-0.5B
-
-    #customized LLM models for compare inference peformance of QNN-CPU, QNN-GPU, QNN-NPU, cDSP, the default ggml backend
-    #during development stage
-    #https://huggingface.co/zhouwg/kantv/blob/main/t5-277M-F32.gguf,                                    size 1.1  GiB
-
     set +e
 
     adb shell ls /sdcard/t5-very-small-random-F32.gguf
@@ -437,10 +421,11 @@ function check_prebuilt_models()
         adb push ${PROJECT_ROOT_PATH}/models/t5-very-small-random-F32.gguf /sdcard/
     fi
 
+    #1.12 GiB
     check_and_download_model qwen1_5-1_8b-chat-q4_0.gguf https://huggingface.co/Qwen/Qwen1.5-1.8B-Chat-GGUF/resolve/main/qwen1_5-1_8b-chat-q4_0.gguf
-    #check_and_download_model MiniCPM4-0.5B-F32.gguf https://huggingface.co/zhouwg/kantv/resolve/main/MiniCPM4-0.5B-F32.gguf
-    #check_and_download_model t5-277M-F32.gguf https://huggingface.co/zhouwg/kantv/resolve/main/t5-277M-F32.gguf
+    #6.9 GiB
     #check_and_download_model gemma-3n-E4B-it-Q8_0.gguf https://huggingface.co/ggml-org/gemma-3n-E4B-it-GGUF/resolve/main/gemma-3n-E4B-it-Q8_0.gguf
+    #4.5 GiB
     check_and_download_model gemma-3n-E2B-it-Q8_0.gguf https://huggingface.co/ggml-org/gemma-3n-E2B-it-GGUF/resolve/main/gemma-3n-E2B-it-Q8_0.gguf
 
     set -e
