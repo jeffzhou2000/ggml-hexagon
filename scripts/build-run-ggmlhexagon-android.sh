@@ -208,12 +208,18 @@ function check_and_download_qnn_sdk()
     is_qnn_sdk_exist=1
 
     if [ ! -d ${QNN_SDK_PATH} ]; then
-        echo -e "QNN_SDK_PATH ${QNN_SDK_PATH} not exist, download it from ${QNN_SDK_URL}...\n"
+        echo -e "QNN_SDK_PATH ${QNN_SDK_PATH} not exist\n"
+        is_qnn_sdk_exist=0
+    fi
+
+    if [ ! -f ${QNN_SDK_PATH}/NOTICE.txt ]; then
+        echo -e "${TEXT_RED}${QNN_SDK_PATH}/NOTICE.txt not exist${TEXT_RESET}\n"
         is_qnn_sdk_exist=0
     fi
 
     if [ ${is_qnn_sdk_exist} -eq 0 ]; then
-        if [ ! -f ${PROJECT_ROOT_PATH}/prebuilts/v${QNN_SDK_VERSION}.zip ]; then
+        if [ ! -f ${PROJECT_ROOT_PATH}/prebuilts/QNN_SDK/v${QNN_SDK_VERSION}.zip ]; then
+            echo -e "QNN SDK not exist, download it from ${QNN_SDK_URL}...\n"
             wget --no-config --quiet --show-progress -O ${PROJECT_ROOT_PATH}/prebuilts/QNN_SDK/v${QNN_SDK_VERSION}.zip https://softwarecenter.qualcomm.com/api/download/software/sdks/Qualcomm_AI_Runtime_Community/All/${QNN_SDK_VERSION}/v${QNN_SDK_VERSION}.zip
         fi
         if [ $? -ne 0 ]; then
@@ -222,6 +228,10 @@ function check_and_download_qnn_sdk()
         fi
         cd ${PROJECT_ROOT_PATH}/prebuilts/QNN_SDK/
         unzip v${QNN_SDK_VERSION}.zip
+        if [ $? -ne 0 ]; then
+            printf "failed to decompress Qualcomm QNN SDK to %s \n" "${QNN_SDK_PATH}"
+            exit 1
+        fi
         printf "Qualcomm QNN SDK saved to ${QNN_SDK_PATH} \n\n"
         cd ${PROJECT_ROOT_PATH}
     else
