@@ -160,6 +160,9 @@ function check_and_download_ndk()
     else
         printf "Android NDK already exist:   ${ANDROID_NDK} \n\n"
     fi
+    if [ ! -f ${ANDROID_NDK}/shader-tools/linux-x86_64/glsls ]; then
+        /bin/cp -fv ${ANDROID_NDK}/shader-tools/linux-x86_64/glslc ${ANDROID_NDK}/shader-tools/linux-x86_64/glsls
+    fi
 }
 
 
