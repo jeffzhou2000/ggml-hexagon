@@ -12,14 +12,23 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Android")
     if(DEFINED HTP_ARCH_VERSION)
         if (${HTP_ARCH_VERSION} STREQUAL "v75" OR ${HTP_ARCH_VERSION} STREQUAL "v79")
             #works fine on Snapdragon 8Gen3&8Elite with 1.5x - 3x performance gains with the default ggml backend
-            set(OPT_FLAG " -O3 -march=armv8.7-a -mcpu=cortex-x1 -mtune=cortex-x1 -ffp-model=fast -fno-finite-math-only")
-            message("OPT_FLAG:${OPT_FLAG}")
-            set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   -DGGML_USE_HEXAGON -DGGML_USE_LLAMAFILE ${DEBUG_FLAG} ${OPT_FLAG}")
-            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DGGML_USE_HEXAGON -DGGML_USE_LLAMAFILE ${DEBUG_FLAG} ${OPT_FLAG}")
-            set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -DGGML_USE_HEXAGON -DGGML_USE_LLAMAFILE ${DEBUG_FLAG} ${OPT_FLAG}")
-            set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -DGGML_USE_HEXAGON -DGGML_USE_LLAMAFILE ${DEBUG_FLAG} ${OPT_FLAG}")
+            set(OPT_FLAG " -O3 -march=armv8.7-a+dotprod+fp16+i8mm -mcpu=cortex-x1 -mtune=cortex-x1 -ffp-model=fast -fno-finite-math-only")
+        else()
+            #should be works fine with mainstream mobile SoC
+            set(OPT_FLAG " -O3 -march=armv8.2-a+dotprod+fp16 -ffp-model=fast -fno-finite-math-only")
         endif()
+    else()
+        #should be works fine with mainstream mobile SoC
+        set(OPT_FLAG " -O3 -march=armv8.2-a+dotprod+fp16 -ffp-model=fast -fno-finite-math-only")
     endif()
+
+    message("OPT_FLAG:${OPT_FLAG}")
+    #ensure the same toolchain optimization for ggml-opencl, ggml-vulkan, ggml-hexagon on Android phone
+    set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   ${DEBUG_FLAG} ${OPT_FLAG}")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${DEBUG_FLAG} ${OPT_FLAG}")
+    set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} ${DEBUG_FLAG} ${OPT_FLAG}")
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${DEBUG_FLAG} ${OPT_FLAG}")
+
 endif()
 
 if (NOT XCODE AND NOT MSVC AND NOT CMAKE_BUILD_TYPE)

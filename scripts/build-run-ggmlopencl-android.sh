@@ -41,6 +41,14 @@ OPENCL_HEADERS_PATH=${OPENCL_SDK_PATH}/OpenCL-Headers
 running_params=" -ngl 99 -t 4 -n 256 --no-warmup "
 
 ######## part-2: contents in this part can be modified ########
+#supported htp arch version:
+#v68 --- Snapdragon 888
+#v69 --- Snapdragon 8 Gen1
+#v73 --- Snapdragon 8 Gen2
+#v75 --- Snapdragon 8 Gen3
+#v79 --- Snapdragon 8 Elite
+HTP_ARCH_VERSION=v79
+
 PROMPT_STRING="introduce the movie Once Upon a Time in America briefly.\n"
 
 #for llama-cli, 1.1 GiB, will be downloaded automatically via this script when running this script at the first time
@@ -201,7 +209,7 @@ function check_and_download_ndk()
 
 function build_arm64
 {
-    cmake -H. -B./out/ggmlopencl-android -DCMAKE_BUILD_TYPE=Release -DGGML_OPENMP=OFF -DCMAKE_TOOLCHAIN_FILE=${ANDROID_NDK}/build/cmake/android.toolchain.cmake -DANDROID_ABI=arm64-v8a -DANDROID_PLATFORM=latest -DCMAKE_C_FLAGS=-march=armv8.7-a -DGGML_OPENCL=ON -DLLAMA_CURL=OFF
+    cmake -H. -B./out/ggmlopencl-android -DCMAKE_BUILD_TYPE=Release -DGGML_OPENMP=OFF -DCMAKE_TOOLCHAIN_FILE=${ANDROID_NDK}/build/cmake/android.toolchain.cmake -DANDROID_ABI=arm64-v8a -DANDROID_PLATFORM=latest -DGGML_OPENCL=ON -DLLAMA_CURL=OFF -DGGML_LLAMAFILE=OFF -DHTP_ARCH_VERSION=${HTP_ARCH_VERSION}
     cd out/ggmlopencl-android
     make -j${HOST_CPU_COUNTS}
     show_pwd
@@ -212,7 +220,7 @@ function build_arm64
 
 function build_arm64_debug
 {
-    cmake -H. -B./out/ggmlopencl-android -DCMAKE_BUILD_TYPE=Debug -DGGML_OPENMP=OFF -DCMAKE_TOOLCHAIN_FILE=${ANDROID_NDK}/build/cmake/android.toolchain.cmake -DANDROID_ABI=arm64-v8a -DANDROID_PLATFORM=latest -DCMAKE_C_FLAGS=-march=armv8.7-a -DGGML_OPENCL=ON -DLLAMA_CURL=OFF
+    cmake -H. -B./out/ggmlopencl-android -DCMAKE_BUILD_TYPE=Debug -DGGML_OPENMP=OFF -DCMAKE_TOOLCHAIN_FILE=${ANDROID_NDK}/build/cmake/android.toolchain.cmake -DANDROID_ABI=arm64-v8a -DANDROID_PLATFORM=latest -DGGML_OPENCL=ON -DLLAMA_CURL=OFF -DGGML_LLAMAFILE=OFF -DHTP_ARCH_VERSION=${HTP_ARCH_VERSION}
     cd out/ggmlopencl-android
     make -j${HOST_CPU_COUNTS}
     show_pwd

@@ -147,7 +147,6 @@ poetry.toml
 /run-vim.sh
 /run-chat.sh
 
-HEXAGON_Tools/
 prebuilts/QNN_SDK/qairt/2.35.0.250530/
 prebuilts/QNN_SDK/qairt/2.36.0.250627/
 prebuilts/QNN_SDK/v2.35.0.250530.zip
@@ -159,3 +158,4 @@ prebuilts/Vulkan_SDK/
 ggml/src/ggml-hexagon/kernels/ggmlop.h
 ggml/src/ggml-hexagon/kernels/ggmlop_skel.c
 ggml/src/ggml-hexagon/kernels/ggmlop_stub.c
+prebuilts/
