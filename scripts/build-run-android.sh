@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # build llama.cpp + ggml-hexagon backend on Linux for Android phone equipped with Qualcomm Snapdragon mobile SoC
 # this script will setup local dev envs automatically
@@ -61,19 +61,7 @@ GGUF_MODEL_NAME=/sdcard/qwen1_5-1_8b-chat-q4_0.gguf
 #v75 --- Snapdragon 8 Gen3
 #v79 --- Snapdragon 8 Elite
 
-#8Gen2
-#HTP_ARCH_VERSION=v73
-#HTP_ARCH_VERSION_a=V73
-
-#8Gen3
-#HTP_ARCH_VERSION=v75
-#HTP_ARCH_VERSION_a=V75
-
-#8Elite
-#HTP_ARCH_VERSION=v79
-#HTP_ARCH_VERSION_a=V79
-
-#modify the following two lines to adapt to test phone
+#modify the following two lines to suit the test phone
 HTP_ARCH_VERSION=v79
 HTP_ARCH_VERSION_a=V79
 
@@ -132,7 +120,7 @@ function check_and_download_hexagon_sdk()
             echo -e "minimal-hexagon-sdk-6.2.0.1.xz already exist\n"
         else
             echo -e "begin downloading minimal-hexagon-sdk-6.2.0.1.xz \n"
-            wget --no-config --quiet --show-progress -O ${PROJECT_ROOT_PATH}/prebuilts/Hexagon_SDK/minimal-hexagon-sdk-6.2.0.1.xz https://github.com/kantv-ai/toolchain/raw/refs/heads/main/minimal-hexagon-sdk-6.2.0.1.xz
+            wget --no-config --quiet --show-progress -O ${PROJECT_ROOT_PATH}/prebuilts/Hexagon_SDK/minimal-hexagon-sdk-6.2.0.1.xz https://github.com/zhouwg/toolchain/raw/refs/heads/main/minimal-hexagon-sdk-6.2.0.1.xz
             if [ $? -ne 0 ]; then
                 printf "failed to download minimal-hexagon-sdk-6.2.0.1.xz\n"
                 exit 1
@@ -168,8 +156,13 @@ function check_and_download_qnn_sdk()
         is_qnn_sdk_exist=0
     fi
 
+    if [ ! -f ${QNN_SDK_PATH}/NOTICE.txt ]; then
+        echo -e "${TEXT_RED}${QNN_SDK_PATH}/NOTICE.txt not exist${TEXT_RESET}\n"
+        is_qnn_sdk_exist=0
+    fi
+
     if [ ${is_qnn_sdk_exist} -eq 0 ]; then
-        if [ ! -f ${PROJECT_ROOT_PATH}/prebuild/v${QNN_SDK_VERSION}.zip ]; then
+        if [ ! -f ${PROJECT_ROOT_PATH}/prebuilts/v${QNN_SDK_VERSION}.zip ]; then
             wget --no-config --quiet --show-progress -O ${PROJECT_ROOT_PATH}/prebuilts/QNN_SDK/v${QNN_SDK_VERSION}.zip https://softwarecenter.qualcomm.com/api/download/software/sdks/Qualcomm_AI_Runtime_Community/All/${QNN_SDK_VERSION}/v${QNN_SDK_VERSION}.zip
         fi
         if [ $? -ne 0 ]; then
@@ -178,6 +171,10 @@ function check_and_download_qnn_sdk()
         fi
         cd ${PROJECT_ROOT_PATH}/prebuilts/QNN_SDK/
         unzip v${QNN_SDK_VERSION}.zip
+        if [ $? -ne 0 ]; then
+            printf "failed to decompress Qualcomm QNN SDK to %s \n" "${QNN_SDK_PATH}"
+            exit 1
+        fi
         printf "Qualcomm QNN SDK saved to ${QNN_SDK_PATH} \n\n"
         cd ${PROJECT_ROOT_PATH}
     else

@@ -49,11 +49,6 @@ if (${CHECK_HTP_ARCH} STREQUAL "WRONG")
 endif()
 
 #check optimization flags
-set(OPT_FLAG " ")
-if (${HTP_ARCH_VERSION} STREQUAL "v75" OR ${HTP_ARCH_VERSION} STREQUAL "v79")
-    #works fine on Snapdragon 8Gen3&8Elite with 1.5x - 3x performance gains with the default ggml backend
-    set(OPT_FLAG " -O3 -march=armv8.7-a -mcpu=cortex-x1 -mtune=cortex-x1 -flto -D_GNU_SOURCE -fvectorize -ffp-model=fast -fno-finite-math-only")
-endif()
 message("OPT_FLAG:${OPT_FLAG}")
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Android")
