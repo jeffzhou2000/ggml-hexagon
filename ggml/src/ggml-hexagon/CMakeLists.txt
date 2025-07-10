@@ -32,33 +32,27 @@ endif()
 #v69 --- Snapdragon 8 Gen1
 #v73 --- Snapdragon 8 Gen2
 #v75 --- Snapdragon 8 Gen3
-#v79 --- Snapdragon 8 Elite(aka Gen4)
+#v79 --- Snapdragon 8 Elite
 if(NOT DEFINED HTP_ARCH_VERSION)
     message(FATAL_ERROR "HTP_ARCH_VERSION not defined, valid htp arch: v68,v69,v73,v75,v79")
 endif()
 
 #check whether user's specified htp arch is valid
 set(CHECK_HTP_ARCH "WRONG")
-#ref: https://github.com/quic/ai-hub-apps/tree/main/tutorials/llm_on_genie
-#foreach (feat v68 v69 v73 v75 v79)
-#foreach (feat v73 v75 v79)
-#for simplify workflow, only support v75 and v79, or only support 8Gen3 and 8Elite
-foreach (feat v75 v79)
+foreach (feat v68 v69 v73 v75 v79)
     if (${feat} STREQUAL ${HTP_ARCH_VERSION})
         set(CHECK_HTP_ARCH "GOOD")
     endif()
 endforeach()
 if (${CHECK_HTP_ARCH} STREQUAL "WRONG")
-    #message(FATAL_ERROR "ggml-hexagon backend only support htp arch v68,v69,v73,v75,v79")
-    #for simplify workflow, only support v75 and v79, or only support 8Gen3 and 8Elite
-    message(FATAL_ERROR "ggml-hexagon backend only support htp arch v75,v79")
+    message(FATAL_ERROR "ggml-hexagon backend only support htp arch v68,v69,v73,v75,v79")
 endif()
 
 #check optimization flags
 set(OPT_FLAG " ")
 if (${HTP_ARCH_VERSION} STREQUAL "v75" OR ${HTP_ARCH_VERSION} STREQUAL "v79")
     #works fine on Snapdragon 8Gen3&8Elite with 1.5x - 3x performance gains with the default ggml backend
-    set(OPT_FLAG " -O3 -march=armv8.7-a -mcpu=cortex-x1 -mtune=cortex-x1 -flto -D_GNU_SOURCE -fvectorize -ffp-model=fast -fno-finite-math-only")
+    set(OPT_FLAG " -O3 -march=armv8.7-a+dotprod+fp16+i8mm -mcpu=cortex-x1 -mtune=cortex-x1 -ffp-model=fast -fno-finite-math-only")
 endif()
 message("OPT_FLAG:${OPT_FLAG}")
 

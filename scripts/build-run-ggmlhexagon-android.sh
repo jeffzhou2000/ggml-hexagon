@@ -58,6 +58,7 @@ GGMLDSP_RELEASE_DATE=20250531
 GGMLDSP_RELEASE_DATE=20250609
 GGMLDSP_RELEASE_DATE=20250625
 GGMLDSP_RELEASE_DATE=20250627
+GGMLDSP_RELEASE_DATE=20250710
 
 
 ######## part-2: contents in this part can be modified ########
@@ -87,31 +88,19 @@ GGUF_MODEL_NAME=/sdcard/gemma-3n-E2B-it-Q8_0.gguf
 #for llama-bench, 1.12 GiB, will be downloadded automatically via this script when running this script at the first time
 GGUF_MODEL_NAME=/sdcard/qwen1_5-1_8b-chat-q4_0.gguf
 
-#ref: https://github.com/quic/ai-hub-apps/tree/main/tutorials/llm_on_genie
 #supported htp arch version:
+#v68 --- Snapdragon 888
+#v69 --- Snapdragon 8 Gen1
 #v73 --- Snapdragon 8 Gen2
 #v75 --- Snapdragon 8 Gen3
 #v79 --- Snapdragon 8 Elite
 
-#8Gen2
-#HTP_ARCH_VERSION=v73
-#HTP_ARCH_VERSION_a=V73
-
-#8Gen3
-#HTP_ARCH_VERSION=v75
-#HTP_ARCH_VERSION_a=V75
-
-#8Elite
-#HTP_ARCH_VERSION=v79
-#HTP_ARCH_VERSION_a=V79
-
-#modify the following two lines to adapt to test phone
-#for simplify workflow, only support v75 and v79, or only support 8Gen3 and 8Elite at the moment
-#v79/8Elite is strongly recommended because:
-#1. sometimes the same dsp codes can running well as expected on Snapdragon 8Elite based phone
-#   but can't works as expected on other Snapdragon based phone(e.g. 8Gen3).
+#Qualcomm Snapdragon 8Elite based Android phone is strongly recommended because:
+#1. sometimes the same dsp codes can got the best performance on Snapdragon 8Elite based phone.
 #2. DSP clock rate on 8Gen3 is slower than DSP clock rate on 8Elite.
 #3. 8Elite support for LP-DDR5x memory, up to 5300 MHz; 8Gen3 support for LP-DDR5x memory, up to 4800 MHz.
+
+#modify the following two lines to adapt to test phone
 HTP_ARCH_VERSION=v79
 HTP_ARCH_VERSION_a=V79
 
@@ -277,9 +266,9 @@ function check_and_download_ndk()
 function build_arm64
 {
     #not acutually used at the moment, just for AI experts add other AI operators in the future
-    if [ -f ${HEXAGON_SDK_PATH}/ipc/fastrpc/qaic/bin/qaic ]; then
-        ${HEXAGON_SDK_PATH}/ipc/fastrpc/qaic/bin/qaic -mdll -o ${PROJECT_ROOT_PATH}/ggml/src/ggml-hexagon/kernels -I${HEXAGON_SDK_PATH}/incs -I${HEXAGON_SDK_PATH}/incs/stddef -I${HEXAGON_SDK_PATH}/ipc/fastrpc/incs ${PROJECT_ROOT_PATH}/ggml/src/ggml-hexagon/kernels/ggmlop.idl
-    fi
+    #if [ -f ${HEXAGON_SDK_PATH}/ipc/fastrpc/qaic/bin/qaic ]; then
+    #    ${HEXAGON_SDK_PATH}/ipc/fastrpc/qaic/bin/qaic -mdll -o ${PROJECT_ROOT_PATH}/ggml/src/ggml-hexagon/kernels -I${HEXAGON_SDK_PATH}/incs -I${HEXAGON_SDK_PATH}/incs/stddef -I${HEXAGON_SDK_PATH}/ipc/fastrpc/incs ${PROJECT_ROOT_PATH}/ggml/src/ggml-hexagon/kernels/ggmlop.idl
+    #fi
 
     cmake -H. -B./out/ggmlhexagon-android -DCMAKE_BUILD_TYPE=Release -DGGML_OPENMP=OFF -DCMAKE_TOOLCHAIN_FILE=${ANDROID_NDK}/build/cmake/android.toolchain.cmake -DANDROID_ABI=arm64-v8a -DANDROID_PLATFORM=latest -DGGML_HEXAGON=ON -DLLAMA_CURL=OFF -DGGML_LLAMAFILE=ON -DQNN_SDK_PATH=${QNN_SDK_PATH} -DHEXAGON_SDK_PATH=${HEXAGON_SDK_PATH} -DHTP_ARCH_VERSION=${HTP_ARCH_VERSION}
     cd out/ggmlhexagon-android
