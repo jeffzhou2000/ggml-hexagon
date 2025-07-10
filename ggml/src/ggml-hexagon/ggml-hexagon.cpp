@@ -379,7 +379,7 @@ static struct hexagon_appcfg_t g_hexagon_appcfg = {
 #elif defined(_WIN32)
         .qnn_runtimelib_path    = "C:\\",
 #endif
-        .ggml_hexagon_version   = {"1.13"},
+        .ggml_hexagon_version   = {"1.14"},
         .ggml_dsp_version       = {"0.63"},
 };
 
@@ -890,10 +890,10 @@ static void ggmlhexagon_print_tensors_info(const char * func_name, const ggml_ba
     }
 
     if (nullptr != func_name && nullptr != ctx) {
-        GGMLHEXAGON_LOG_DEBUG("call %s in dev %s\n", func_name, ctx->name);
+        GGMLHEXAGON_LOG_VERBOSE("call %s in dev %s\n", func_name, ctx->name);
     }
     if (nullptr != src0) {
-        GGMLHEXAGON_LOG_DEBUG(
+        GGMLHEXAGON_LOG_VERBOSE(
                 "%-6s: type = %i (%s) ne = %5" PRIi64 " x %5" PRIi64 " x %5" PRIi64 " x %5" PRIi64 ", nb = (%5zi, %5zi, %5zi, %5zi)",
                 src0->name,
                 src0->type, ggml_type_name(src0->type), src0->ne[0], src0->ne[1], src0->ne[2],
@@ -901,18 +901,18 @@ static void ggmlhexagon_print_tensors_info(const char * func_name, const ggml_ba
                 src0->nb[0], src0->nb[1], src0->nb[2], src0->nb[3]);
     }
     if (nullptr != src1) {
-        GGMLHEXAGON_LOG_DEBUG(
+        GGMLHEXAGON_LOG_VERBOSE(
                 "%-6s: type = %i (%s) ne = %5" PRIi64 " x %5" PRIi64 " x %5" PRIi64 " x %5" PRIi64 ", nb = (%5zi, %5zi, %5zi, %5zi)",
                 src1->name,
                 src1->type, ggml_type_name(src1->type), src1->ne[0], src1->ne[1], src1->ne[2],
                 src1->ne[3],
                 src1->nb[0], src1->nb[1], src1->nb[2], src1->nb[3]);
     }
-    GGMLHEXAGON_LOG_DEBUG("%-6s: type = %i (%s) ne = %5" PRIi64 " x %5" PRIi64 " x %5" PRIi64 " x %5" PRIi64 ", nb = (%5zi, %5zi, %5zi, %5zi)",
+    GGMLHEXAGON_LOG_VERBOSE("%-6s: type = %i (%s) ne = %5" PRIi64 " x %5" PRIi64 " x %5" PRIi64 " x %5" PRIi64 ", nb = (%5zi, %5zi, %5zi, %5zi)",
                       dst->name,
                       dst->type, ggml_type_name(dst->type), dst->ne[0], dst->ne[1], dst->ne[2], dst->ne[3],
                       dst->nb[0], dst->nb[1], dst->nb[2], dst->nb[3]);
-    GGMLHEXAGON_LOG_DEBUG("\n");
+    GGMLHEXAGON_LOG_VERBOSE("\n");
 }
 
 static void ggmlhexagon_dump_op_info(const struct ggml_tensor * tensor) {
@@ -923,7 +923,7 @@ static void ggmlhexagon_dump_op_info(const struct ggml_tensor * tensor) {
     const struct ggml_tensor * src0 = tensor->src[0];
     struct ggml_tensor       * src1 = tensor->src[1];
     struct ggml_tensor       * dst  = const_cast<ggml_tensor *>(tensor);
-    GGMLHEXAGON_LOG_DEBUG("op name:%s, tensor type:%s", ggml_op_name(tensor->op), ggml_type_name(tensor->type));
+    GGMLHEXAGON_LOG_VERBOSE("op name:%s, tensor type:%s", ggml_op_name(tensor->op), ggml_type_name(tensor->type));
     ggmlhexagon_print_tensors_info(nullptr, nullptr, src0, src1, dst);
 }
 
@@ -941,7 +941,7 @@ static void ggmlhexagon_dump_tensor_elements(const ggml_tensor * tensor) {
                                << " ";
                     }
                     if (strlen(tmposs.str().c_str()) <= (GGMLHEXAGON_LOGBUF_LEN - 96)) {
-                        GGMLHEXAGON_LOG_DEBUG("%s\n", tmposs.str().c_str());
+                        GGMLHEXAGON_LOG_VERBOSE("%s\n", tmposs.str().c_str());
                     }
                     tmposs.clear();
                     tmposs.str("");
@@ -950,7 +950,7 @@ static void ggmlhexagon_dump_tensor_elements(const ggml_tensor * tensor) {
         }
     }
 
-    GGMLHEXAGON_LOG_DEBUG("\n");
+    GGMLHEXAGON_LOG_VERBOSE("\n");
 }
 
 static void ggmlhexagon_dump_tensor(const ggml_tensor * tensor, const char * name) {
@@ -5851,16 +5851,11 @@ static bool ggmlhexagon_can_handle_op_through_cdsp(ggml_backend_dev_t dev, const
     switch (op_tensor->op) {
         case GGML_OP_ADD:
         {
-            //TODO:workaround approach to fix HWACCEL_CDSP can't works in ASR inference and  LLM inference
-            //     with some LLM models in a standard Android APP
-            if (ne00 < 1024) {
-                return false;
-            }
-
+            ggmlhexagon_dump_op_info(op_tensor);
             if (!ggml_are_same_shape(src0, src1)) {
                 return false;
             }
-            return (src0->type == GGML_TYPE_F32) && (src1->type == GGML_TYPE_F32) && (op_tensor->type == GGML_TYPE_F32);
+            return ((src0->type == GGML_TYPE_F32) || (src0->type == GGML_TYPE_F16));
         }
         case GGML_OP_MUL_MAT:
         {
@@ -5929,8 +5924,9 @@ static bool ggmlhexagon_can_handle_op_through_qnn(ggml_backend_dev_t dev, const 
                 return false;
             }
 
-            if (ne00 < 32)
+            if (ne00 < 32) {
                 return false;
+            }
 
             return ggmlhexagon_same_types(ctx, op_tensor);
         }
