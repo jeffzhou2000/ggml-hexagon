@@ -2,7 +2,7 @@
 #
 # Copyright (c) 2025 zhouwg(https://github.com/zhouwg)
 #
-# Accuracy And Performance test of various mulmat algotype on Hexagon-cDSP
+# Accuracy And Performance test for ggml-hexagon's various mulmat algotype on Hexagon-cDSP
 #
 #
 set -e
