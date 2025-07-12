@@ -4,7 +4,6 @@
 #
 # Accuracy And Performance test for ggml-hexagon's various mulmat algotype on Hexagon-cDSP
 #
-#
 set -e
 
 PWD=`pwd`
