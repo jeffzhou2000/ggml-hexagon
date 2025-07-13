@@ -45,6 +45,7 @@ QNN_SDK_PATH=${PROJECT_ROOT_PATH}/prebuilts/QNN_SDK/qairt/2.36.0.250627/
 
 #Qualcomm Hexagon SDK can be found at:
 #https://developer.qualcomm.com/software/hexagon-dsp-sdk/tools
+#https://docs.qualcomm.com/bundle/publicresource/topics/80-77512-1/hexagon-dsp-sdk-collection-landing-page.html?product=1601111740010422
 #the official Hexagon SDK, must be obtained with Qualcomm Developer Account
 HEXAGON_SDK_PATH=/opt/qcom/Hexagon_SDK/6.2.0.1
 #customized/tailored Hexagon SDK from the offcial Hexagon SDK for simplify workflow
@@ -167,7 +168,7 @@ function check_and_download_hexagon_sdk()
             echo -e "minimal-hexagon-sdk-6.2.0.1.xz already exist\n"
         else
             echo -e "begin downloading minimal-hexagon-sdk-6.2.0.1.xz \n"
-            wget --no-config --quiet --show-progress -O ${PROJECT_ROOT_PATH}/prebuilts/Hexagon_SDK/minimal-hexagon-sdk-6.2.0.1.xz https://github.com/zhouwg/toolchain/raw/refs/heads/main/minimal-hexagon-sdk-6.2.0.1.xz
+            wget --no-config --quiet --show-progress -O ${PROJECT_ROOT_PATH}/prebuilts/Hexagon_SDK/minimal-hexagon-sdk-6.2.0.1.xz https://github.com/zhouwg/toolchain/raw/refs/heads/master/minimal-hexagon-sdk-6.2.0.1.xz
             if [ $? -ne 0 ]; then
                 printf "failed to download minimal-hexagon-sdk-6.2.0.1.xz\n"
                 exit 1
