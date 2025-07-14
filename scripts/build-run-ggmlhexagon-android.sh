@@ -43,13 +43,15 @@ QNN_SDK_PATH=${PROJECT_ROOT_PATH}/prebuilts/QNN_SDK/qairt/2.34.0.250424/
 QNN_SDK_PATH=${PROJECT_ROOT_PATH}/prebuilts/QNN_SDK/qairt/2.35.0.250530/
 QNN_SDK_PATH=${PROJECT_ROOT_PATH}/prebuilts/QNN_SDK/qairt/2.36.0.250627/
 
-#Qualcomm Hexagon SDK can be found at:
+#fully Qualcomm Hexagon SDK can be found at(fully Hexagon SDK must be obtained with Qualcomm Developer Account):
 #https://developer.qualcomm.com/software/hexagon-dsp-sdk/tools
-#https://docs.qualcomm.com/bundle/publicresource/topics/80-77512-1/hexagon-dsp-sdk-collection-landing-page.html?product=1601111740010422
-#the official Hexagon SDK, must be obtained with Qualcomm Developer Account
 HEXAGON_SDK_PATH=/opt/qcom/Hexagon_SDK/6.2.0.1
-#customized/tailored Hexagon SDK from the offcial Hexagon SDK for simplify workflow
+#the official Qualcomm Hexagon SDK tech docs can be found at:
+#https://docs.qualcomm.com/bundle/publicresource/topics/80-77512-1/hexagon-dsp-sdk-collection-landing-page.html?product=1601111740010422
+#customized/tailored Hexagon SDK for simplify workflow and can be downloaded via this script
+#this highly tailored minimal-hexagon-sdk should comply with Qualcomm's IPR policy.
 HEXAGON_SDK_PATH=${PROJECT_ROOT_PATH}/prebuilts/Hexagon_SDK/6.2.0.1
+
 
 #running_params=" -ngl 99 -t 4 -n 256 --no-warmup -fa 1 "
 running_params=" -ngl 99 -t 4 -n 256 --no-warmup "
