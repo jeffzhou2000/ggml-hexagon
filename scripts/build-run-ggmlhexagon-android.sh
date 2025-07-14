@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Copyright (c) 2024-2025 zhouwg(https://github.com/zhouwg)
+# Copyright (c) 2024-2025 Jeff Zhou(https://github.com/jeffzhou2000)
 #
 # 1. build llama.cpp + ggml-hexagon backend on Linux for Android phone equipped with Qualcomm Snapdragon mobile SoC
 #    this script will setup local dev envs automatically
@@ -170,7 +170,7 @@ function check_and_download_hexagon_sdk()
             echo -e "minimal-hexagon-sdk-6.2.0.1.xz already exist\n"
         else
             echo -e "begin downloading minimal-hexagon-sdk-6.2.0.1.xz \n"
-            wget --no-config --quiet --show-progress -O ${PROJECT_ROOT_PATH}/prebuilts/Hexagon_SDK/minimal-hexagon-sdk-6.2.0.1.xz https://github.com/zhouwg/toolchain/raw/refs/heads/master/minimal-hexagon-sdk-6.2.0.1.xz
+            wget --no-config --quiet --show-progress -O ${PROJECT_ROOT_PATH}/prebuilts/Hexagon_SDK/minimal-hexagon-sdk-6.2.0.1.xz https://github.com/jeffzhou2000/toolchain/raw/refs/heads/master/minimal-hexagon-sdk-6.2.0.1.xz
             if [ $? -ne 0 ]; then
                 printf "failed to download minimal-hexagon-sdk-6.2.0.1.xz\n"
                 exit 1

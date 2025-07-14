@@ -2,7 +2,7 @@
 #
 # Copyright (c) 2024 Qualcomm(https://www.qualcomm.com/developer/blog/2024/11/introducing-new-opn-cl-gpu-backend-llama-cpp-for-qualcomm-adreno-gpu, original-author)
 # Copyright (c) 2025 rmatif(https://github.com/rmatif, core-author)
-# Copyright (c) 2025 zhouwg(https://github.com/zhouwg, co-author)
+# Copyright (c) 2025 Jeff Zhou(https://github.com/jeffzhou2000, co-author)
 #
 # build llama.cpp + ggml-opencl backend on Linux for Android phone
 # this script will setup local dev envs automatically
